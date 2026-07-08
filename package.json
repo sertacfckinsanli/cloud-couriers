@@ -1,0 +1,12 @@
+{
+  "name": "cloud-couriers",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloud Couriers: The Lost Letter Kingdom — vertical mobile puzzle game prototype",
+  "scripts": {
+    "dev": "npx -y http-server . -p 5591 -a 0.0.0.0 -c-1",
+    "test": "node test-solver.mjs",
+    "build": "node scripts/build-single.mjs"
+  }
+}
