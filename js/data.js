@@ -1,11 +1,23 @@
 // ---------- static game data (couriers, story letters, shop, regions) ----------
+// gameplay stats — the single source of truth for what each cloud can do
+export const COURIER_STATS={
+ poffy:{name:'Poffy', accent:'#7fc3f7', stepMs:440, cap:1},
+ zippy:{name:'Zippy', accent:'#ffd34d', stepMs:330, cap:1},
+ mimo: {name:'Mimo',  accent:'#cfc3f5', stepMs:600, cap:2},
+ lulu: {name:'Lulu',  accent:'#5bd98f', stepMs:480, cap:1, shield:1},
+ nini: {name:'Nini',  accent:'#b18cff', stepMs:440, cap:1, seesHidden:true},
+ bibi: {name:'Bibi',  accent:'#ffb3cf', stepMs:440, cap:1},
+};
+// unlocked by finishing these levels
+export const COURIER_UNLOCKS={ 10:'zippy', 18:'mimo', 24:'nini', 28:'lulu' };
+
 export const COURIERS=[
- {id:'poffy', name:'Poffy', emoji:'☁️', accent:'#7fc3f7', desc:'Sweet, brave and balanced. Carries one letter.', tag:'Starter — unlocked!', locked:false},
- {id:'zippy', name:'Zippy', emoji:'💨', accent:'#ffd977', desc:'Zooms fast! Tricky timing near hazards.', tag:'Unlocks at level 10', locked:true},
- {id:'mimo', name:'Mimo', emoji:'😴', accent:'#cfc3f5', desc:'Calm and sleepy. Carries TWO letters, but slowly.', tag:'Trial at level 18', locked:true},
- {id:'lulu', name:'Lulu', emoji:'⛈️', accent:'#9fdf9f', desc:'Can puff through one storm cloud per level.', tag:'Unlocks at level 28', locked:true},
- {id:'nini', name:'Nini', emoji:'🌙', accent:'#b18cff', desc:'Night courier. Sees every hidden moonlit path.', tag:'Trial at level 24!', locked:true},
- {id:'bibi', name:'Bibi', emoji:'🐣', accent:'#ffb3cf', desc:'Tiny and curious. Fits through cloud tunnels.', tag:'Coming soon', locked:true},
+ {id:'poffy', desc:'Sweet, brave and balanced. Steady wings, one letter.', tag:'Starter — always ready!'},
+ {id:'zippy', desc:'Zooms 25% faster! Great for the clock, tricky near storms.', tag:'Unlocks at level 10', unlockAt:10},
+ {id:'mimo', desc:'Calm and sleepy. Carries TWO letters, but drifts slowly.', tag:'Unlocks at level 18', unlockAt:18},
+ {id:'nini', desc:'Night courier. Sees every hidden moonlit path.', tag:'Unlocks at level 24', unlockAt:24},
+ {id:'lulu', desc:'Brave and fluffy. Survives ONE storm hit per flight.', tag:'Unlocks at level 28', unlockAt:28},
+ {id:'bibi', desc:'Tiny and curious. Fits through cloud tunnels.', tag:'Region 5 — coming soon', unlockAt:99},
 ];
 
 export const STORY=[

@@ -4,7 +4,7 @@ import { $, el, toast } from './dom.js';
 import { sfx } from './audio.js';
 import { save, persist, maxUnlocked, resetSave, dailyKey, dailyDone } from './save.js';
 import { courierSVG } from './svg.js';
-import { COURIERS, STORY, SHOP, REGIONS } from './data.js';
+import { COURIERS, COURIER_STATS, STORY, SHOP, REGIONS } from './data.js';
 import { game } from './game.js';
 import { uiIcon, starRow, decoIcon, stampRosette } from './icons.js';
 
@@ -79,6 +79,32 @@ export const ui = {
     game.flying=false; game.paused=false;
     this.show('map');
   },
+  openCourierPicker(){
+    if(game.flying){ toast('No swapping mid-flight!'); return; }
+    if(game.L && game.L.courier){
+      toast('This level flies with '+COURIER_STATS[game.L.courier].name+'!'); return;
+    }
+    const list=$('#courier-pick-list'); list.innerHTML='';
+    COURIERS.forEach(c=>{
+      const s=COURIER_STATS[c.id];
+      const owned=!!save.couriers[c.id];
+      const active=game.courierId===c.id;
+      const row=el('div','courier-card'+(owned?'':' locked'));
+      row.style.cursor=owned?'pointer':'default';
+      row.innerHTML=`<div>${courierSVG(s.accent,54)}</div>
+        <div class="cinfo"><div class="cname">${s.name}${active?' ✓':''}</div>
+        <div class="cdesc">${c.desc}</div>
+        <span class="badge ${owned?'':'lock'}">${owned?(active?'Flying now':'Tap to fly'):c.tag}</span></div>`;
+      if(owned && !active) row.onclick=()=>{
+        save.lastCourier=c.id; persist(); sfx.tap();
+        this.closeModal('modal-courier');
+        game.load(this.currentLevel, Object.assign({}, this.pendingOpts||{}, {courier:c.id}));
+        toast(s.name+' is ready to fly!');
+      };
+      list.appendChild(row);
+    });
+    this.openModal('modal-courier');
+  },
   toggleSfx(){ save.sfx=!save.sfx; persist(); $('#sw-sfx').classList.toggle('on',save.sfx); sfx.tap(); },
   resetProgress(){ resetSave(); this.closeModal('modal-settings'); this.show('title'); toast('Progress reset. Fresh skies!'); },
   pendingStory:null,
@@ -152,11 +178,13 @@ function renderMap(){
 function renderCouriers(){
   const list=$('#courier-list'); list.innerHTML='';
   COURIERS.forEach(c=>{
-    const card=el('div','courier-card'+(c.locked?' locked':''));
-    card.innerHTML=`<div>${courierSVG(c.accent,72)}</div>
-      <div class="cinfo"><div class="cname">${c.name}</div>
+    const s=COURIER_STATS[c.id];
+    const owned=!!save.couriers[c.id];
+    const card=el('div','courier-card'+(owned?'':' locked'));
+    card.innerHTML=`<div>${courierSVG(s.accent,72)}</div>
+      <div class="cinfo"><div class="cname">${s.name}</div>
       <div class="cdesc">${c.desc}</div>
-      <span class="badge ${c.locked?'lock':''}">${c.tag}</span></div>`;
+      <span class="badge ${owned?'':'lock'}">${owned?'In your post office!':c.tag}</span></div>`;
     list.appendChild(card);
   });
 }

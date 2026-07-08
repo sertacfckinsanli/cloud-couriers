@@ -84,7 +84,7 @@
     </div>
     <div id="board-wrap"><div id="board"></div></div>
     <div id="hud-bottom">
-      <div id="char-chip"></div>
+      <button id="char-chip" onclick="ui.openCourierPicker()"></button>
       <button class="btn" id="btn-go" onclick="game.go()">Ready to fly?</button>
       <button class="iconbtn" onclick="game.hint()"><span data-icon="bulb" data-size="22"></span></button>
     </div>
@@ -142,6 +142,15 @@
         <button class="btn" onclick="ui.closeModal('modal-settings')">Keep playing</button>
         <button class="btn blue small" id="btn-quit" style="display:none;" onclick="ui.quitLevel()"><span data-icon="map" data-size="15"></span> Back to map</button>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-back" id="modal-courier">
+    <div class="modal">
+      <h3>Pick your courier</h3>
+      <div class="msub">Each cloud flies its own way</div>
+      <div id="courier-pick-list" style="max-height:52vh;overflow-y:auto;text-align:left;"></div>
+      <div class="btncol"><button class="btn ghost small" onclick="ui.closeModal('modal-courier')">Close</button></div>
     </div>
   </div>
 

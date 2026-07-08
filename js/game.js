@@ -4,6 +4,7 @@ import { LEVELS } from './levels.js';
 import { $, el, toast } from './dom.js';
 import { sfx } from './audio.js';
 import { save, persist, dailyKey } from './save.js';
+import { COURIER_STATS, COURIER_UNLOCKS } from './data.js';
 import { courierSVG, houseSVG } from './svg.js';
 import { ui } from './ui.js';
 import { sealIcon, sealChip, windArrow, chevronFlow, postOfficeIcon, gateDoors,
@@ -30,7 +31,12 @@ export const game = {
     this.cleanup();
     this.daily = !!opts.daily;
     this.L = LEVELS[id-1]; this.P = parseLevel(this.L);
-    this.st = initRun(this.P, this.L);
+    // courier: level-forced > explicit choice > last used (if unlocked) > Poffy
+    const forced = this.L.courier;
+    this.courierId = forced || opts.courier
+      || (save.couriers[save.lastCourier] ? save.lastCourier : 'poffy');
+    this.stats = COURIER_STATS[this.courierId] || COURIER_STATS.poffy;
+    this.st = initRun(this.P, this.L, this.stats);
     this._Pghost = Object.assign({}, this.P, { movers: [] });
     this._solution = null;
     this.arrows = Object.assign({}, this.P.arrowsInit);
@@ -47,13 +53,12 @@ export const game = {
     $('#phone').classList.toggle('rainbow', this.L.region===2);
     $('#screen-play').classList.toggle('night', this.L.region===3);
     $('#phone').classList.toggle('night', this.L.region===3);
-    this.seesHidden = this.L.courier==='nini';
+    this.seesHidden = !!this.stats.seesHidden;
     $('#hud-level').textContent='Lv '+id;
     $('#hud-timer').textContent=this.L.timeLimit? this.L.timeLimit+'s' : '0s';
     $('#hud-timer').classList.toggle('limit', !!this.L.timeLimit);
-    const cn = this.L.courier==='mimo'?{n:'Mimo',a:'#cfc3f5'}
-             : this.L.courier==='nini'?{n:'Nini',a:'#b18cff'}:{n:'Poffy',a:'#7fc3f7'};
-    $('#char-chip').innerHTML = courierSVG(cn.a,34)+' '+cn.n;
+    $('#char-chip').innerHTML = courierSVG(this.stats.accent,34)+' '+this.stats.name
+      + (this.L.courier ? '' : ' <span class="swapmark">'+uiIcon('restart',11)+'</span>');
     const go=$('#btn-go'); go.textContent='Ready to fly?'; go.classList.remove('flying');
     this.buildBoard();
     this.renderObjectives();
@@ -143,8 +148,7 @@ export const game = {
     // courier
     const cour=el('div',''); cour.id='courier';
     cour.style.cssText=`width:${TS}px;height:${TS}px;`;
-    const accent=this.L.courier==='mimo'?'#cfc3f5':this.L.courier==='nini'?'#b18cff':'#7fc3f7';
-    cour.innerHTML='<div class="lean"><div class="cbody">'+courierSVG(accent, Math.round(TS*0.95))+'<div id="carrybadges"></div></div></div>';
+    cour.innerHTML='<div class="lean"><div class="cbody">'+courierSVG(this.stats.accent, Math.round(TS*0.95))+'<div id="carrybadges"></div></div></div>';
     board.appendChild(cour);
     this._lastXY=null;
     this.placeCourier();
@@ -225,7 +229,7 @@ export const game = {
       layer.appendChild(e2);
     }
   },
-  stepMs(){ return this.L.stepMs||440; },
+  stepMs(){ return this.stats ? this.stats.stepMs : (this.L.stepMs||440); },
 
   renderObjectives(){
     const box=$('#hud-obj'); box.innerHTML='';
@@ -403,7 +407,10 @@ export const game = {
       document.querySelectorAll('.tile.switch .lantern').forEach(l=>l.innerHTML=lanternIcon(Math.round(this.TS*0.62), true));
       toast('The lantern lights the hidden paths!');
     }
-    if(e.t==='bump'){ sfx.bump(); this.jolt('squash'); this.shakeBoard(true); this.spark(this.st.r+','+this.st.c, sparkStar(20,'#ff8a9e')); toast(e.storm?'The grumpy cloud shoved Poffy back!':'Bumped by a balloon!'); }
+    if(e.t==='bump'){ sfx.bump(); this.jolt('squash'); this.shakeBoard(true); this.spark(this.st.r+','+this.st.c, sparkStar(20, e.shield?'#7fe8a8':'#ff8a9e'));
+      toast(e.shield ? 'Lulu puffed right through the storm!'
+        : e.storm ? 'The grumpy cloud shoved '+this.stats.name+' back!'
+        : 'Bumped by a balloon!'); }
     if(e.t==='bounceHome'){ sfx.tap(); this.jolt('squash'); }
     if(e.t==='win'){ this.finishWin(); }
     if(e.t==='lose'){ this.finishLose(e.reason); }
@@ -446,6 +453,12 @@ export const game = {
       save.stars[id]=Math.max(prev,stars); persist();
       ui.maybeStory(id);
       rewardText = reward? `+${reward} postal stamps ` : 'Stamps already earned ';
+      const uc=COURIER_UNLOCKS[id];
+      if(uc && !save.couriers[uc]){
+        save.couriers[uc]=1; persist();
+        const s=COURIER_STATS[uc];
+        setTimeout(()=>toast(courierSVG(s.accent,20)+' '+s.name+' joined your post office!'), 1400);
+      }
     }
     // modal
     $('#win-title').textContent = this.daily?'Daily Delivered!':(stars===3?'Perfect Delivery!':'Mail Delivered!');

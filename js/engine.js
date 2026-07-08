@@ -49,10 +49,11 @@ export function moonOpen(L, mt){
   return (mt % (2*p)) < p;
 }
 
-export function initRun(P, L){
+export function initRun(P, L, stats){
+  stats = stats || {};
   return {
     r:P.start.r, c:P.start.c, dir:L.startDir||'u',
-    carrying:[], cap:L.carryCap||1,
+    carrying:[], cap:stats.cap||L.carryCap||1, shield:stats.shield||0,
     lettersLeft:Object.assign({}, P.letters),
     housesDone:{}, deliveredCount:0,
     stampsGot:{}, mistakes:0, steps:0, mt:(L.moverOffset||0),
@@ -107,6 +108,7 @@ export function stepSim(P, L, st, io){
   const mv = moverAtCell(P, st.mt, nr, nc);
   if(mv){
     if(mv.type==='balloon' || L.gentleStorm){ st.dir=OPP[d]; st.mistakes++; ev.push({t:'bump',key:nk,storm:mv.type==='storm'}); return ev; }
+    if(st.shield>0){ st.shield--; st.dir=OPP[d]; st.mistakes++; ev.push({t:'bump',key:nk,storm:true,shield:true}); return ev; }
     st.status='lost'; st.reason='storm'; ev.push({t:'lose',reason:'storm'}); return ev;
   }
   // 4) enter

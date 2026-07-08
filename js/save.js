@@ -1,9 +1,16 @@
 // ---------- persistence ----------
 const SAVE_KEY = 'cloudCouriers_v1';
 
-export const save = { stars:{}, stamps:0, bought:{}, letters:{}, sfx:true, daily:{ last:'', streak:0 } };
+export const save = { stars:{}, stamps:0, bought:{}, letters:{}, sfx:true,
+  daily:{ last:'', streak:0 }, couriers:{ poffy:1 }, lastCourier:'poffy' };
 try{ const s = localStorage.getItem(SAVE_KEY); if(s) Object.assign(save, JSON.parse(s)); }catch(e){}
 if(!save.daily) save.daily = { last:'', streak:0 };
+if(!save.couriers) save.couriers = { poffy:1 };
+if(!save.lastCourier) save.lastCourier = 'poffy';
+// retroactive unlocks for saves from before the courier system existed
+for(const [lv, cid] of [[10,'zippy'],[18,'mimo'],[24,'nini'],[28,'lulu']]){
+  if(save.stars[lv] > 0) save.couriers[cid] = 1;
+}
 
 // local calendar day, e.g. "2026-07-08"; offsetDays shifts it (-1 = yesterday)
 export function dailyKey(offsetDays = 0){

@@ -1,5 +1,6 @@
-// Cloud Couriers service worker — cache-first so the game plays offline.
-const VERSION = 'cloud-couriers-v2';
+// Cloud Couriers service worker — network-first with cache fallback.
+// Fresh files whenever online (no stale-module version skew), full offline play otherwise.
+const VERSION = 'cloud-couriers-v3';
 const CORE = [
   '.', 'index.html',
   'css/font.css', 'css/styles.css',
@@ -24,10 +25,12 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
   e.respondWith(
-    caches.match(e.request).then((hit) => hit || fetch(e.request).then((res) => {
-      const copy = res.clone();
-      caches.open(VERSION).then((c) => c.put(e.request, copy));
-      return res;
-    }))
+    fetch(e.request)
+      .then((res) => {
+        const copy = res.clone();
+        caches.open(VERSION).then((c) => c.put(e.request, copy));
+        return res;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
