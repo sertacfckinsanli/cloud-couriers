@@ -145,6 +145,22 @@
     </div>
   </div>
 
+  <div class="modal-back" id="modal-ad">
+    <div class="ad-frame">
+      <button class="ad-close" id="ad-close" onclick="ui.closeAd()" disabled>20</button>
+      <div class="ad-stage">
+        <video id="ad-video" src="ads/ad.mp4" playsinline loop preload="auto"></video>
+        <div class="ad-fallback" id="ad-fallback">
+          <div class="ad-fb-badge">AD</div>
+          <div class="ad-fb-title">Your Ad Here</div>
+          <div class="ad-fb-sub">Drop a video in the <code>ads/</code> folder<br>as <code>ad.mp4</code> to play it here</div>
+          <div class="ad-fb-shine"></div>
+        </div>
+      </div>
+      <div class="ad-caption"><span class="ad-dot"></span> Rewarded Ad · watch to earn your hint</div>
+    </div>
+  </div>
+
   <div class="modal-back" id="modal-courier">
     <div class="modal">
       <h3>Pick your courier</h3>

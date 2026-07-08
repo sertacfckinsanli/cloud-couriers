@@ -513,7 +513,12 @@ export const game = {
 
   restart(){ sfx.tap(); this.load(this.L.id); },
   hint(){
-    this.usedHint=true; sfx.tap();
+    // rewarded-ad gate: watch the (mock) video, then the hint is revealed
+    sfx.tap();
+    ui.playAd(()=>this._doHint());
+  },
+  _doHint(){
+    this.usedHint=true;
     const bulb='<span style="color:#eda313">'+uiIcon('bulb',14)+'</span> ';
     document.querySelectorAll('.tile.hinted').forEach(t=>t.classList.remove('hinted'));
     // solver-backed hint (computed once per level, reused across taps)

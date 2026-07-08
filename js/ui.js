@@ -79,6 +79,41 @@ export const ui = {
     game.flying=false; game.paused=false;
     this.show('map');
   },
+  adCallback:null, adTimer:null,
+  playAd(onDone){
+    this.adCallback = onDone;
+    game.setPaused(true); // freeze the flight (no-op when not flying)
+    const closeBtn = $('#ad-close');
+    closeBtn.disabled = true; closeBtn.classList.remove('ready'); closeBtn.textContent = '20';
+    const v = $('#ad-video'), fb = $('#ad-fallback');
+    // default: placeholder visible, video hidden. Reveal the video only once it
+    // truly starts playing, so a missing/broken ad.mp4 never shows a black box.
+    fb.style.display = 'flex';
+    v.style.display = 'none';
+    v.onplaying = () => { v.style.display = 'block'; fb.style.display = 'none'; };
+    try { v.currentTime = 0; const p = v.play(); if(p && p.catch) p.catch(()=>{}); } catch(e){}
+    this.openModal('modal-ad');
+    let left = 20;
+    clearInterval(this.adTimer);
+    this.adTimer = setInterval(() => {
+      left--;
+      if(left <= 0){
+        clearInterval(this.adTimer);
+        closeBtn.disabled = false; closeBtn.classList.add('ready'); closeBtn.textContent = '✕';
+      } else {
+        closeBtn.textContent = left;
+      }
+    }, 1000);
+  },
+  closeAd(){
+    if($('#ad-close').disabled) return;
+    clearInterval(this.adTimer);
+    const v = $('#ad-video'); try { v.pause(); } catch(e){}
+    this.closeModal('modal-ad');
+    game.setPaused(false);
+    const cb = this.adCallback; this.adCallback = null;
+    if(cb) cb();
+  },
   openCourierPicker(){
     if(game.flying){ toast('No swapping mid-flight!'); return; }
     if(game.L && game.L.courier){
