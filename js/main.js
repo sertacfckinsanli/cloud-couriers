@@ -40,8 +40,16 @@ window.addEventListener('resize', ()=>{
 });
 
 // PWA: offline cache + installability. Skipped on localhost so dev edits are
-// never shadowed by the cache-first service worker; no-op in the single-file artifact.
+// never shadowed by the service worker; no-op in the single-file artifact.
 const isLocalDev = location.hostname==='localhost' || location.hostname==='127.0.0.1';
 if('serviceWorker' in navigator && location.protocol.startsWith('http') && !isLocalDev){
-  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+  // when a freshly-installed worker takes control, reload once so a phone can
+  // never get stuck showing stale cached CSS/JS from an older version
+  let reloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+    if(reloaded) return; reloaded=true; location.reload();
+  });
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').then(reg=>{ reg.update(); }).catch(()=>{});
+  });
 }
