@@ -1,5 +1,5 @@
 // ---------- gameplay controller (board render, flight loop, win/lose) ----------
-import { parseLevel, initRun, stepSim, moverPos, COLORS } from './engine.js';
+import { parseLevel, initRun, stepSim, moverPos, moonOpen, COLORS } from './engine.js';
 import { LEVELS } from './levels.js';
 import { $, el, toast } from './dom.js';
 import { sfx } from './audio.js';
@@ -8,7 +8,7 @@ import { courierSVG, houseSVG } from './svg.js';
 import { ui } from './ui.js';
 import { sealIcon, sealChip, windArrow, chevronFlow, postOfficeIcon, gateDoors,
          stormCloud, balloonIcon, stampRosette, fogPuff, envelopeIcon,
-         sparkStar, crossPuff, uiIcon, ghostArrow } from './icons.js';
+         sparkStar, crossPuff, uiIcon, ghostArrow, moonGateIcon, lanternIcon } from './icons.js';
 import { solveLevel, adviseHint } from './solver.js';
 
 const DIR2DEG = { u:0, r:90, d:180, l:270 };
@@ -45,10 +45,14 @@ export const game = {
     this.flying=false; this.paused=false; this.elapsed=0; this.tutIdx=0;
     $('#screen-play').classList.toggle('rainbow', this.L.region===2);
     $('#phone').classList.toggle('rainbow', this.L.region===2);
+    $('#screen-play').classList.toggle('night', this.L.region===3);
+    $('#phone').classList.toggle('night', this.L.region===3);
+    this.seesHidden = this.L.courier==='nini';
     $('#hud-level').textContent='Lv '+id;
     $('#hud-timer').textContent=this.L.timeLimit? this.L.timeLimit+'s' : '0s';
     $('#hud-timer').classList.toggle('limit', !!this.L.timeLimit);
-    const cn = this.L.courier==='mimo'?{n:'Mimo',a:'#cfc3f5'}:{n:'Poffy',a:'#7fc3f7'};
+    const cn = this.L.courier==='mimo'?{n:'Mimo',a:'#cfc3f5'}
+             : this.L.courier==='nini'?{n:'Nini',a:'#b18cff'}:{n:'Poffy',a:'#7fc3f7'};
     $('#char-chip').innerHTML = courierSVG(cn.a,34)+' '+cn.n;
     const go=$('#btn-go'); go.textContent='Ready to fly?'; go.classList.remove('flying');
     this.buildBoard();
@@ -77,6 +81,7 @@ export const game = {
     for(let r=0;r<this.P.rows;r++) for(let c=0;c<this.P.cols;c++){
       const k=r+','+c, t=this.P.tiles[k]; if(t.type==='sky') continue;
       const d=el('div','tile '+t.type); d.dataset.key=k;
+      if(t.hidden){ d.classList.add('hiddenpath'); if(this.seesHidden) d.classList.add('revealed'); }
       d.style.cssText=`left:${c*TS+pad}px;top:${r*TS+pad}px;width:${TS-pad*2}px;height:${TS-pad*2}px;font-size:${TS}px;`;
       if(t.type==='arrow'){
         d.innerHTML='<span class="arr" style="transform:rotate('+this.arrowRot[k]+'deg)">'+windArrow(Math.round(TS*0.62))+'</span>';
@@ -97,6 +102,8 @@ export const game = {
         else { d.innerHTML='<span class="gdoor">'+gateDoors(Math.round(TS*0.6))+'</span>'; d.onclick=()=>this.tapGate(k); }
       }
       if(t.type==='bridge'){ d.innerHTML='<div class="arc"></div>'; }
+      if(t.type==='moongate'){ d.innerHTML='<span class="moonface">'+moonGateIcon(Math.round(TS*0.66), moonOpen(this.L, this.st.mt))+'</span>'; }
+      if(t.type==='switch'){ d.innerHTML='<span class="lantern">'+lanternIcon(Math.round(TS*0.62), false)+'</span>'; }
       board.appendChild(d);
     }
     // letters + stamps overlays
@@ -136,7 +143,7 @@ export const game = {
     // courier
     const cour=el('div',''); cour.id='courier';
     cour.style.cssText=`width:${TS}px;height:${TS}px;`;
-    const accent=this.L.courier==='mimo'?'#cfc3f5':'#7fc3f7';
+    const accent=this.L.courier==='mimo'?'#cfc3f5':this.L.courier==='nini'?'#b18cff':'#7fc3f7';
     cour.innerHTML='<div class="lean"><div class="cbody">'+courierSVG(accent, Math.round(TS*0.95))+'<div id="carrybadges"></div></div></div>';
     board.appendChild(cour);
     this._lastXY=null;
@@ -180,15 +187,22 @@ export const game = {
     layer.innerHTML='';
     if(this.flying || !this.st || this.st.status!=='ready') return;
     const st=initRun(this._Pghost, this.L); st.status='flying';
-    const steps=[]; let result='loop';
-    for(let i=0;i<44 && st.status==='flying';i++){
+    if(this.st && this.st.lit) st.lit=true;
+    const steps=[]; let result='loop'; let intoDark=false;
+    for(let i=0;i<44 && st.status==='flying' && !intoDark;i++){
       const ev=stepSim(this._Pghost, this.L, st, { arrowDir:k=>this.arrows[k], gateOpen:()=>true });
       for(const e of ev){
-        if(e.t==='move') steps.push({r:e.r, c:e.c, dir:e.dir});
+        if(e.t==='move'){
+          const t=this._Pghost.tiles[e.r+','+e.c];
+          // the preview fades into darkness at unrevealed hidden tiles
+          if(t && t.hidden && !st.lit && !this.seesHidden){ intoDark=true; break; }
+          steps.push({r:e.r, c:e.c, dir:e.dir});
+        }
         if(e.t==='win') result='win';
         if(e.t==='lose') result='lose';
       }
     }
+    if(intoDark) result='dark';
     if(!steps.length) return;
     const TS=this.TS, W=this.P.cols*TS, H=this.P.rows*TS;
     // one continuous wind stream through the cell centers, drawn UNDER the items
@@ -202,7 +216,9 @@ export const game = {
         stroke-dasharray="7 9" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`;
     const last=steps[Math.min(steps.length,44)-1];
-    const endIcon = result==='win' ? sparkStar(18,'#ffd34d') : (result==='lose' ? crossPuff(15) : null);
+    const endIcon = result==='win' ? sparkStar(18,'#ffd34d')
+                  : result==='lose' ? crossPuff(15)
+                  : result==='dark' ? '<span style="opacity:.7">'+fogPuff(20)+'</span>' : null;
     if(endIcon){
       const e2=el('div','ghostend',endIcon);
       e2.style.left=(cx(last.c)-9)+'px'; e2.style.top=(cy(last.r)-9)+'px';
@@ -275,12 +291,13 @@ export const game = {
   },
 
   startMoverIdle(){
-    // pre-flight: movers keep the SAME rhythm as in-flight (one tick per stepMs),
-    // so the pattern the player watches is exactly the pattern they'll fly against
+    // pre-flight: movers and moon gates keep the SAME rhythm as in-flight
+    // (one tick per stepMs), so the pattern the player watches is exactly
+    // the pattern they'll fly against
     clearInterval(this.moverIdleTimer);
-    if(!this.P.movers.length) return;
+    if(!this.P.movers.length && this.P.moonCycle<=1) return;
     this.moverIdleTimer=setInterval(()=>{
-      if(this.flying) return;
+      if(this.flying || this.paused) return;
       this.st.mt++;
       this.renderMovers();
     }, this.stepMs());
@@ -290,6 +307,15 @@ export const game = {
       const p=moverPos(this.P, i, this.st.mt);
       const o=$('#mover-'+i); if(o) o.style.transform=`translate(${p[1]*this.TS}px,${p[0]*this.TS}px)`;
     });
+    if(this.P.moonCycle>1){
+      const open=moonOpen(this.L, this.st.mt);
+      document.querySelectorAll('.tile.moongate').forEach(d=>{
+        if(d.classList.contains('open')!==open){
+          d.classList.toggle('open', open);
+          d.querySelector('.moonface').innerHTML=moonGateIcon(Math.round(this.TS*0.66), open);
+        }
+      });
+    }
   },
 
   go(){
@@ -367,7 +393,16 @@ export const game = {
       });
     }
     if(e.t==='reject'){ sfx.bump(); this.jolt('squash'); this.spark(e.key, crossPuff(20)); toast('Oops, wrong mailbox!'); }
-    if(e.t==='bounceGate'){ sfx.bump(); this.jolt('squash'); this.shakeBoard(true); this.spark(e.key, e.color?sealChip(e.color,18,COLORS):crossPuff(20)); if(!e.color) toast('The gate was closed! Tap it!'); else toast('This gate only accepts '+COLORS[e.color].name+' mail!'); }
+    if(e.t==='bounceGate'){ sfx.bump(); this.jolt('squash'); this.shakeBoard(true); this.spark(e.key, e.color?sealChip(e.color,18,COLORS):crossPuff(20));
+      if(e.moon) toast('The moon gate is closed — wait for the glow!');
+      else if(!e.color) toast('The gate was closed! Tap it!');
+      else toast('This gate only accepts '+COLORS[e.color].name+' mail!'); }
+    if(e.t==='light'){
+      sfx.stamp(); this.spark(this.st.r+','+this.st.c, sparkStar(22,'#ffe9a8'));
+      document.querySelectorAll('.tile.hiddenpath').forEach(d=>d.classList.add('revealed'));
+      document.querySelectorAll('.tile.switch .lantern').forEach(l=>l.innerHTML=lanternIcon(Math.round(this.TS*0.62), true));
+      toast('The lantern lights the hidden paths!');
+    }
     if(e.t==='bump'){ sfx.bump(); this.jolt('squash'); this.shakeBoard(true); this.spark(this.st.r+','+this.st.c, sparkStar(20,'#ff8a9e')); toast(e.storm?'The grumpy cloud shoved Poffy back!':'Bumped by a balloon!'); }
     if(e.t==='bounceHome'){ sfx.tap(); this.jolt('squash'); }
     if(e.t==='win'){ this.finishWin(); }
@@ -416,7 +451,7 @@ export const game = {
     $('#win-title').textContent = this.daily?'Daily Delivered!':(stars===3?'Perfect Delivery!':'Mail Delivered!');
     $('#win-msg').textContent = `Finished in ${time.toFixed(1)}s · ${this.st.mistakes===0?'no mistakes!':this.st.mistakes+' little bump'+(this.st.mistakes>1?'s':'')}` + (wantStamps? ` · stamps ${gotStamps}/${wantStamps}`:'');
     $('#win-stamps').innerHTML = rewardText + stampRosette(16);
-    $('#btn-next').style.display = (this.daily || id>=20)?'none':'';
+    $('#btn-next').style.display = (this.daily || id>=30)?'none':'';
     const row=$('#win-stars'); row.innerHTML='';
     for(let i=0;i<3;i++){ const s=el('span','starslot','★'); row.appendChild(s); }
     sfx.win();

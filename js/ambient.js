@@ -28,6 +28,11 @@ export function initAmbient(host){
   mkLayer(4, 26, 40, 0.14, 0.24, 0.5);   // mid
   mkLayer(3, 44, 62, 0.28, 0.42, 0.65);  // near, fast, bold
 
+  // sleepy stars, visible only in night regions
+  const stars = Array.from({length: 26}, () => ({
+    x: Math.random(), y: Math.random() * 0.85, r: rnd(0.8, 2.2), ph: Math.random() * 6.28,
+  }));
+
   function drawCloud(c){
     ctx.globalAlpha = c.o;
     ctx.fillStyle = '#ffffff';
@@ -40,8 +45,18 @@ export function initAmbient(host){
   }
 
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let t = 0;
   function frame(){
     ctx.clearRect(0, 0, W, H);
+    t += 0.02;
+    if(host.classList.contains('night')){
+      ctx.fillStyle = '#fff8e0';
+      for(const s of stars){
+        ctx.globalAlpha = 0.35 + 0.4 * Math.abs(Math.sin(t + s.ph));
+        ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r, 0, 7); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
     for(const c of clouds){
       drawCloud(c);
       if(!still){

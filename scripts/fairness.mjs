@@ -5,8 +5,13 @@ import { LEVELS } from '../js/levels.js';
 
 function lcm(a, b){ const g = (x, y) => y ? g(y, x % y) : x; return a / g(a, b) * b; }
 
+function fullCycle(P){
+  const moverCycle = P.movers.reduce((a, m) => lcm(a, m.seq.length * m.every), 1);
+  return lcm(moverCycle, P.moonCycle || 1);
+}
+
 function solveAtOffset(L, P, offset, perfectOnly){
-  const cycle = P.movers.reduce((a, m) => lcm(a, m.seq.length * m.every), 1);
+  const cycle = fullCycle(P);
   const keyOf = st => [st.r, st.c, st.dir, st.carrying.slice().sort().join(''),
     Object.keys(st.lettersLeft).sort().join('|'), Object.keys(st.housesDone).sort().join('|'),
     st.mt % cycle].join('#');
@@ -37,9 +42,9 @@ function solveAtOffset(L, P, offset, perfectOnly){
 }
 
 for(const L of LEVELS){
-  if(!(L.movers || []).length) continue;
   const P = parseLevel(L);
-  const cycle = P.movers.reduce((a, m) => lcm(a, m.seq.length * m.every), 1);
+  const cycle = fullCycle(P);
+  if(cycle === 1) continue; // no movers, no moon gates — timing-free level
   const wins = [], perfects = [];
   for(let o = 0; o < cycle; o++){
     wins.push(solveAtOffset(L, P, o, false) !== null ? '✓' : '✗');

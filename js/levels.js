@@ -107,4 +107,59 @@ export const LEVELS = [
   gentleStorm:true,
   fogRows:[0,1], par:30, boss:'Color Fog',
   hint:{cell:'4,3',text:'Two deliveries lift the fog. Pink right, blue left, then rise!'} },
+
+/* ============ Region 3: Sleeping Moon Isles ============ */
+{ id:21, region:3, name:'Moonrise', obj:'First delivery under the moonlight',
+  rows:['.......','...P...','...-...','.^-^...','.-.....','.-.....','.-.....','.S.....'],
+  letters:{'5,1':'p'}, par:12, hint:{cell:'3,1',text:'Turn this breeze toward the moonpath.'},
+  tutorial:[{cell:'3,1',text:'Welcome to the Moon Isles! Same winds, sleepier skies.'}] },
+
+{ id:22, region:3, name:'Moon Gate', obj:'Pass while the moon gate is open',
+  rows:['.......','...B...','...-...','...M...','...-...','...<...','...-...','...S...'],
+  letters:{'4,3':'b'}, moonPeriod:3, par:14, hint:{cell:'3,3',text:'Moon gates open and close on their own — watch the glow, then fly.'},
+  tutorial:[{cell:'3,3',text:'Moon gates breathe with the moon. Time your start!'}] },
+
+{ id:23, region:3, name:'Lantern Light', obj:'Light the lantern to reveal the path',
+  rows:['.......','...Y...','...h...','...h...','...>...','...s...','...-...','...S...'],
+  letters:{'6,3':'y'}, par:12, hint:{cell:'4,3',text:'The lantern below lights the hidden sky-path above.'},
+  tutorial:[{cell:'5,3',text:'Lanterns reveal hidden paths as Poffy passes!'}] },
+
+{ id:24, region:3, name:'Nini\'s Sight', obj:'Trial courier Nini sees hidden paths!',
+  rows:['.......','.......','.rhdhl.','.B.h.P.','.uh^hu.','...-...','...S...'],
+  letters:{'4,2':'b','4,4':'p'}, courier:'nini', par:18,
+  hint:{cell:'4,3',text:'Nini glows — every hidden path is visible to her.'},
+  tutorial:[{cell:'4,3',text:'Nini the night courier sees what others can\'t.'}] },
+
+{ id:25, region:3, name:'Two Moons', obj:'Both moon gates share one rhythm',
+  rows:['.......','.......','.r-d-l.','.B.-.P.','.uM^Mu.','...-...','...-...','...S...'],
+  letters:{'6,3':'p','5,3':'b'}, moonPeriod:3, par:26,
+  hint:{cell:'4,3',text:'Deliver pink right, dive back for blue, then left — mind the moon.'} },
+
+{ id:26, region:3, name:'Secret Stamp', obj:'A hidden detour hides a golden stamp',
+  rows:['.......','...G...','...-...','.>h^...','.h.-...','.^h^...','...s...','...S...'],
+  letters:{'6,3':'g'}, stamps:['4,1'], par:16,
+  hint:{cell:'5,3',text:'The lantern reveals a side road — treasure waits in the dark.'} },
+
+{ id:27, region:3, name:'Moonlit Circuits', obj:'Two deliveries between moon blinks',
+  rows:['.......','.......','.rMdMl.','.B.-.P.','.u-^-u.','...-...','...S...'],
+  letters:{'4,2':'b','4,4':'p'}, moonPeriod:3, par:24,
+  hint:{cell:'4,3',text:'The top corridor closes with the moon. Turn the middle breeze in flight!'} },
+
+{ id:28, region:3, name:'Sleeping Grump', obj:'Shhh — deliver without waking the cloud',
+  rows:['.......','...B...','...-...','.>hu...','.h.-...','.^h<...','...-...','...s...','...S...'],
+  letters:{'6,3':'b'}, movers:[{cells:[[4,3]],type:'storm',face:'😴',big:true}],
+  par:16, hint:{cell:'5,3',text:'The grump sleeps on the straight road. Sneak around the hidden left.'},
+  tutorial:[{cell:'4,3',text:'This cloud is asleep. Do NOT bump into it!'}] },
+
+{ id:29, region:3, name:'Night Rush', obj:'Fast lane or hidden treasure lane?',
+  rows:['.......','.>---v.','.-...h.','.G...-.','.-...h.','.^-<s<.','...M...','...-...','...S...'],
+  letters:{'7,3':'g'}, stamps:['2,5'], moonPeriod:3, par:14,
+  hint:{cell:'5,3',text:'Left is quick. The lantern route climbs through hidden sky to the stamp.'} },
+
+{ id:30, region:3, name:'Sleeping Moon Finale', obj:'Boss: the Drowsy Moon! 3 letters in the dark',
+  rows:['...Y...','...M...','.rhvhl.','.B.-.P.','.uM^Mu.','...s...','...-...','...S...'],
+  letters:{'6,3':'p','2,4':'b','2,2':'y'}, moonPeriod:3,
+  movers:[{cells:[[3,3],[3,4]],type:'storm',every:2,face:'😴',big:true}],
+  gentleStorm:true, par:34, boss:'The Drowsy Moon',
+  hint:{cell:'4,3',text:'Light the lantern, ride the moon: pink right, blue left, then rise at moonrise.'} },
 ];

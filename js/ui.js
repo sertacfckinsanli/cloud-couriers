@@ -15,7 +15,7 @@ function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=Math.imul(31,h)+s.c
 export const ui = {
   stack:['title'], currentLevel:1, pendingOpts:null,
   show(name){
-    if(name!=='play') $('#phone').classList.remove('rainbow');
+    if(name!=='play') $('#phone').classList.remove('rainbow','night');
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
     const sc=$('#screen-'+name); sc.classList.add('on'); sc.classList.add('fadein');
     setTimeout(()=>sc.classList.remove('fadein'),400);
@@ -30,7 +30,7 @@ export const ui = {
   play(){ this.show('map'); },
   openDaily(){
     const key=dailyKey(), seed=hashStr(key);
-    const id=(seed % 17)+4;                       // one of levels 4..20, rotates daily
+    const id=(seed % 27)+4;                       // one of levels 4..30, rotates daily
     this.currentLevel=id; this.pendingOpts={daily:true, seed};
     const L=LEVELS[id-1];
     $('#intro-region').textContent='Daily Delivery · '+key;
@@ -43,7 +43,8 @@ export const ui = {
   },
   openLevel(id){
     this.currentLevel=id; this.pendingOpts=null; const L=LEVELS[id-1];
-    $('#intro-region').textContent = (L.region===1?'Cotton Village':'Rainbow Market') + ' · Level '+id;
+    const regionName = {1:'Cotton Village',2:'Rainbow Market',3:'Sleeping Moon Isles'}[L.region];
+    $('#intro-region').textContent = regionName + ' · Level '+id;
     $('#intro-name').textContent = L.name + (L.boss? ' 👑':'');
     $('#intro-obj').textContent = L.obj;
     const g=$('#intro-goals'); g.innerHTML='';
@@ -56,7 +57,7 @@ export const ui = {
   },
   startLevel(){ this.closeModal('modal-intro'); this.show('play'); game.load(this.currentLevel, this.pendingOpts||{}); },
   nextLevel(){ this.closeModal('modal-win'); const n=this.currentLevel+1;
-    if(n>20){ this.show('map'); toast('More regions coming soon!'); return; }
+    if(n>30){ this.show('map'); toast('More regions coming soon!'); return; }
     this.openLevel(n); },
   replay(withHint){ this.closeModal('modal-win'); this.closeModal('modal-lose'); this.show('play'); game.load(this.currentLevel, this.pendingOpts||{}); if(withHint) setTimeout(()=>game.hint(),400); },
   openModal(id){ $('#'+id).classList.add('on'); },
@@ -106,7 +107,7 @@ function renderMap(){
   const daily=el('button','ret-card',`<div class="big" style="color:#e8559a">${uiIcon('gift',26)}</div>Daily Delivery<div class="soon">${dStatus}</div>`);
   daily.onclick=()=>ui.openDaily();
   ret.appendChild(daily);
-  ret.appendChild(el('div','ret-card',`<div class="big" style="color:#1b86d9">${uiIcon('book',26)}</div>Lost Letter Book<div class="soon">${Object.keys(save.letters).length}/6 found</div>`));
+  ret.appendChild(el('div','ret-card',`<div class="big" style="color:#1b86d9">${uiIcon('book',26)}</div>Lost Letter Book<div class="soon">${Object.keys(save.letters).length}/${STORY.length} found</div>`));
   ret.appendChild(el('div','ret-card',`<div class="big" style="color:#eda313">${uiIcon('tent',26)}</div>Sky Festival<div class="soon">seasonal · soon</div>`));
   inner.appendChild(ret); y+=104;
   const unlockedMax = maxUnlocked();
@@ -119,10 +120,10 @@ function renderMap(){
       const fog=el('div','lockfog',`<span style="vertical-align:-2px;display:inline-block;color:#8d97ad;">${uiIcon('lock',14)}</span> covered in soft cloud fog`);
       fog.style.top=y+'px'; inner.appendChild(fog); y+=86; continue;
     }
-    const ids = reg.id===1?[1,2,3,4,5,6,7,8,9,10]:[11,12,13,14,15,16,17,18,19,20];
+    const ids = Array.from({length:10},(_,i)=>(reg.id-1)*10+i+1);
     ids.forEach((id,i)=>{
       const x = W/2 + Math.sin(i*1.05)* (W*0.26) - 32;
-      const node=el('button','node'+(reg.id===2?' rainbow':''));
+      const node=el('button','node'+(reg.id===2?' rainbow':reg.id===3?' nightnode':''));
       const st=save.stars[id]||0;
       if(st>0){ node.classList.add('done'); node.innerHTML=id+'<span class="stars">'+starRow(st,13)+'</span>'; }
       else if(id===unlockedMax){ node.classList.add('current'); node.textContent=id; }
@@ -163,7 +164,7 @@ function renderCouriers(){
 function renderCollection(){
   const list=$('#collection-list'); list.innerHTML='';
   const found=Object.keys(save.letters).length;
-  list.appendChild(el('div','region-banner',`<div class="rname"><span style="color:#e8559a;vertical-align:-3px;display:inline-block;">${uiIcon('mail',18)}</span> ${found} / 6 lost letters found</div><div class="rsub">Special letters unlock tiny stories</div>`));
+  list.appendChild(el('div','region-banner',`<div class="rname"><span style="color:#e8559a;vertical-align:-3px;display:inline-block;">${uiIcon('mail',18)}</span> ${found} / ${STORY.length} lost letters found</div><div class="rsub">Special letters unlock tiny stories</div>`));
   STORY.forEach(s=>{
     if(save.letters[s.lv]) list.appendChild(el('div','storyletter',`<div class="from">${s.from} · found at level ${s.lv}</div>${s.text}`));
     else list.appendChild(el('div','storyletter locked',`<span style="vertical-align:-2px;display:inline-block;">${uiIcon('lock',13)}</span> A lost letter waits at level ${s.lv}…`));

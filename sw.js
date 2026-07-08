@@ -1,5 +1,5 @@
 // Cloud Couriers service worker — cache-first so the game plays offline.
-const VERSION = 'cloud-couriers-v1';
+const VERSION = 'cloud-couriers-v2';
 const CORE = [
   '.', 'index.html',
   'css/font.css', 'css/styles.css',

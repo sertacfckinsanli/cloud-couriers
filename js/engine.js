@@ -25,6 +25,9 @@ export function parseLevel(L){
     if(HOUSECH[ch]){ tiles[k]={type:'house', color:HOUSECH[ch]}; continue; }
     if(ch==='%'){ tiles[k]={type:'gate', color:(L.gates&&L.gates[k]&&L.gates[k].color)||null}; continue; }
     if(ch==='='){ tiles[k]={type:'bridge', needs:(L.bridges&&L.bridges[k])||1}; continue; }
+    if(ch==='M'){ tiles[k]={type:'moongate'}; continue; }
+    if(ch==='h'){ tiles[k]={type:'path', hidden:true}; continue; }
+    if(ch==='s'){ tiles[k]={type:'switch'}; continue; }
     tiles[k]={type:'sky'};
   }
   const letters = Object.assign({}, L.letters||{});
@@ -34,8 +37,16 @@ export function parseLevel(L){
     const seq = m.cells.length>1 ? m.cells.concat(m.cells.slice(1,-1).reverse()) : m.cells;
     return { type:m.type||'storm', seq, every:m.every||1, face:m.face||null, big:m.big||false };
   });
+  const hasMoon = Object.values(tiles).some(t=>t.type==='moongate');
   return { rows:R, cols:C, tiles, start, arrowsInit:arrows, letters, stamps, movers,
+           moonCycle: hasMoon ? 2*(L.moonPeriod||3) : 1,
            totalLetters:Object.keys(letters).length };
+}
+
+// moon gates open and close together on a fixed, fully deterministic cycle
+export function moonOpen(L, mt){
+  const p = L.moonPeriod||3;
+  return (mt % (2*p)) < p;
 }
 
 export function initRun(P, L){
@@ -45,6 +56,7 @@ export function initRun(P, L){
     lettersLeft:Object.assign({}, P.letters),
     housesDone:{}, deliveredCount:0,
     stampsGot:{}, mistakes:0, steps:0, mt:(L.moverOffset||0),
+    lit:false,
     status:'ready',
   };
 }
@@ -89,6 +101,9 @@ export function stepSim(P, L, st, io){
       if(st.carrying.indexOf(nt.color)===-1){ st.dir=OPP[d]; st.mistakes++; ev.push({t:'bounceGate',key:nk,color:nt.color}); return ev; }
     } else if(!io.gateOpen(nk)){ st.dir=OPP[d]; st.mistakes++; ev.push({t:'bounceGate',key:nk,color:null}); return ev; }
   }
+  if(nt.type==='moongate' && !moonOpen(L, st.mt)){
+    st.dir=OPP[d]; st.mistakes++; ev.push({t:'bounceGate',key:nk,color:null,moon:true}); return ev;
+  }
   const mv = moverAtCell(P, st.mt, nr, nc);
   if(mv){
     if(mv.type==='balloon' || L.gentleStorm){ st.dir=OPP[d]; st.mistakes++; ev.push({t:'bump',key:nk,storm:mv.type==='storm'}); return ev; }
@@ -114,6 +129,7 @@ export function stepSim(P, L, st, io){
       }
     }
   }
+  if(nt.type==='switch' && !st.lit){ st.lit=true; ev.push({t:'light'}); }
   if(nt.type==='start'){ st.dir = OPP[st.dir]; ev.push({t:'bounceHome'}); }
   return ev;
 }

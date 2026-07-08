@@ -87,6 +87,23 @@ export function stampRosette(size = 32) {
     <circle cx="32" cy="26" r="9" fill="#fff3cd" stroke="#eda313" stroke-width="2.5"/>
     <path d="M32 21 l1.8 3.6 4 .6 -2.9 2.8 .7 4 -3.6-1.9 -3.6 1.9 .7-4 -2.9-2.8 4-.6Z" fill="#eda313"/>`);
 }
+export function moonGateIcon(size = 34, open = false) {
+  return open
+    ? svg(size, `<circle cx="32" cy="32" r="20" fill="#fff6d0" stroke="#eda313" stroke-width="3.5"/>
+        <circle cx="26" cy="26" r="4" fill="#f5d98a"/><circle cx="38" cy="36" r="3" fill="#f5d98a"/>
+        <g stroke="#ffd34d" stroke-width="3" stroke-linecap="round" opacity=".9">
+          <path d="M32 4 v6 M32 54 v6 M4 32 h6 M54 32 h6 M12 12 l4 4 M48 48 l4 4 M52 12 l-4 4 M16 48 l-4 4"/></g>`)
+    : svg(size, `<path d="M40 8 a26 26 0 1 0 14 36 a20 20 0 0 1 -14-36Z" fill="#8d86c9" stroke="#5b5080" stroke-width="3.5" stroke-linejoin="round"/>
+        <path d="M28 26 q3 3 6 0 M40 30 q3 3 6 0" stroke="#4a4470" stroke-width="2.5" fill="none" stroke-linecap="round"/>`);
+}
+export function lanternIcon(size = 30, lit = false) {
+  const glow = lit ? `<circle cx="32" cy="34" r="26" fill="#ffd34d" opacity=".25"/>` : '';
+  return svg(size, `${glow}
+    <path d="M26 10 h12 M32 10 v6" stroke="#8a90b8" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M22 22 q10 -8 20 0 l-2 24 q-8 6 -16 0Z" fill="${lit?'#ffe9a8':'#d9ddef'}" stroke="${lit?'#eda313':'#8a90b8'}" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M32 28 l3 6 -3 8 -3 -8Z" fill="${lit?'#f5a623':'#a9b0c9'}"/>
+    <path d="M26 50 h12" stroke="${lit?'#eda313':'#8a90b8'}" stroke-width="3.5" stroke-linecap="round"/>`);
+}
 export function fogPuff(size = 40) {
   return svg(size, `
     <g fill="#ffffff" opacity=".9" stroke="#d8c7ee" stroke-width="2.5">

@@ -39,7 +39,9 @@ window.addEventListener('resize', ()=>{
   if($('#screen-play').classList.contains('on') && game.L && !game.flying) game.buildBoard();
 });
 
-// PWA: offline cache + installability (no-op when unsupported, e.g. single-file artifact)
-if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+// PWA: offline cache + installability. Skipped on localhost so dev edits are
+// never shadowed by the cache-first service worker; no-op in the single-file artifact.
+const isLocalDev = location.hostname==='localhost' || location.hostname==='127.0.0.1';
+if('serviceWorker' in navigator && location.protocol.startsWith('http') && !isLocalDev){
   window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
 }

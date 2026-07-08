@@ -6,7 +6,8 @@ function lcm(a, b) { const g = (x, y) => y ? g(y, x % y) : x; return a / g(a, b)
 
 function solve(L) {
   const P = parseLevel(L);
-  const cycle = P.movers.length ? P.movers.reduce((acc, m) => lcm(acc, m.seq.length * m.every), 1) : 1;
+  const moverCycle = P.movers.length ? P.movers.reduce((acc, m) => lcm(acc, m.seq.length * m.every), 1) : 1;
+  const cycle = lcm(moverCycle, P.moonCycle || 1);
   const stepMs = L.stepMs || 440;
   const maxSteps = L.timeLimit ? Math.floor((L.timeLimit * 1000) / stepMs) - 1 : 88;
 
@@ -108,5 +109,5 @@ for (const L of LEVELS) {
   );
   if (!perfect || !parOk || !limitOk) fail++;
 }
-console.log(fail ? `\n${fail} level(s) need fixes` : '\nAll 20 levels solvable with 3-star runs 🎉');
+console.log(fail ? `\n${fail} level(s) need fixes` : `\nAll ${LEVELS.length} levels solvable with 3-star runs 🎉`);
 process.exit(fail ? 1 : 0);
