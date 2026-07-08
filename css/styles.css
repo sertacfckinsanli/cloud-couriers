@@ -327,7 +327,7 @@ button{font-family:var(--font); border:none; cursor:pointer; color:var(--ink);}
 .ad-frame{position:relative; width:86%; max-width:340px; animation:pop .35s cubic-bezier(.34,1.56,.64,1) both;}
 .ad-stage{position:relative; width:100%; aspect-ratio:9/16; border-radius:22px; overflow:hidden;
   background:#1b1f38; box-shadow:0 24px 60px rgba(10,15,40,.6);}
-.ad-stage video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none; background:#000;}
+.ad-stage video{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:none; background:#000;}
 .ad-fallback{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
   text-align:center; color:#fff; overflow:hidden;
   background:linear-gradient(135deg,#6a5cff,#b06cff 45%,#ff6ba8);}
