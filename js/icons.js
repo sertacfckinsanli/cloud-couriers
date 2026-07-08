@@ -55,21 +55,22 @@ export function gateDoors(size = 34) {
     <circle cx="27" cy="34" r="2.6" fill="${INK}"/><circle cx="37" cy="34" r="2.6" fill="${INK}"/>`);
 }
 export function stormCloud(size = 40, sleepy = false) {
+  // sleepy clouds don't zap; awake ones keep a small bolt INSIDE the viewBox
   const face = sleepy
-    ? `<path d="M22 33 q3 3 6 0 M36 33 q3 3 6 0" stroke="${INK}" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-       <ellipse cx="32" cy="41" rx="3" ry="3.6" fill="${INK}" opacity=".85"/>
-       <text x="46" y="26" font-size="11" fill="#8a90b8" font-family="sans-serif">z</text>`
-    : `<circle cx="25" cy="32" r="3" fill="${INK}"/><circle cx="39" cy="32" r="3" fill="${INK}"/>
-       <path d="M20 26 l7 3 M44 26 l-7 3" stroke="${INK}" stroke-width="2.8" stroke-linecap="round"/>
-       <path d="M27 41 q5 -4 10 0" stroke="${INK}" stroke-width="2.8" fill="none" stroke-linecap="round"/>`;
+    ? `<path d="M24 35 q3 3 6 0 M38 35 q3 3 6 0" stroke="${INK}" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+       <ellipse cx="34" cy="44" rx="3" ry="3.6" fill="${INK}" opacity=".85"/>
+       <text x="48" y="26" font-size="11" fill="#8a90b8" font-family="sans-serif">z</text>`
+    : `<circle cx="27" cy="34" r="3" fill="${INK}"/><circle cx="41" cy="34" r="3" fill="${INK}"/>
+       <path d="M22 28 l7 3 M46 28 l-7 3" stroke="${INK}" stroke-width="2.8" stroke-linecap="round"/>
+       <path d="M29 43 q5 -4 10 0" stroke="${INK}" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+       <path d="M30 50 l6 0 -3 5 5 0 -8 9 2 -7 -5 0Z" fill="#ffd34d" stroke="#eda313" stroke-width="1.8" stroke-linejoin="round"/>`;
   return svg(size, `
     <g stroke="#69719c" stroke-width="3.2">
-      <circle cx="20" cy="32" r="12" fill="#aab3cf"/>
-      <circle cx="44" cy="32" r="12" fill="#aab3cf"/>
-      <circle cx="32" cy="25" r="14" fill="#b8c0d9"/>
-      <rect x="13" y="30" width="38" height="13" rx="6.5" fill="#aab3cf" stroke="none"/>
+      <circle cx="22" cy="34" r="12" fill="#aab3cf"/>
+      <circle cx="46" cy="34" r="12" fill="#aab3cf"/>
+      <circle cx="34" cy="27" r="14" fill="#b8c0d9"/>
+      <rect x="15" y="32" width="38" height="13" rx="6.5" fill="#aab3cf" stroke="none"/>
     </g>
-    <path d="M30 46 l6 0 -4 7 6 0 -9 11 2 -8 -6 0Z" fill="#ffd34d" stroke="#eda313" stroke-width="2" stroke-linejoin="round"/>
     ${face}`);
 }
 export function balloonIcon(size = 36) {

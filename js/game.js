@@ -129,7 +129,7 @@ export const game = {
     // movers
     this.P.movers.forEach((m,i)=>{
       const o=el('div','mover'); o.id='mover-'+i;
-      const s=m.big?1.3:1;
+      const s=m.big?1.08:1;
       o.style.cssText=`width:${TS}px;height:${TS}px;left:0;top:0;`;
       const art = m.type==='balloon' ? balloonIcon(Math.round(TS*0.85*s)) : stormCloud(Math.round(TS*0.95*s), m.face==='😴');
       o.innerHTML='<span class="mbody">'+art+'</span>';
@@ -145,9 +145,9 @@ export const game = {
     }
     // ghost path preview layer (under the courier)
     const gl=el('div',''); gl.id='ghostlayer'; board.appendChild(gl);
-    // courier
+    // courier (explicit left/top so a stray in-flow sibling can never shift it)
     const cour=el('div',''); cour.id='courier';
-    cour.style.cssText=`width:${TS}px;height:${TS}px;`;
+    cour.style.cssText=`width:${TS}px;height:${TS}px;left:0;top:0;`;
     cour.innerHTML='<div class="lean"><div class="cbody">'+courierSVG(this.stats.accent, Math.round(TS*0.95))+'<div id="carrybadges"></div></div></div>';
     board.appendChild(cour);
     this._lastXY=null;
