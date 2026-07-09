@@ -29,6 +29,8 @@ export const STORY=[
  {lv:20, from:'To Everyone', text:'“The storm took our letters, but not our words. The kingdom remembers. Love always finds a route.” — The Post Master'},
  {lv:24, from:'To the Night Watch', text:'“Dear Nini, thank you for reading to the stars until they fall asleep. They snore very softly.” — Mother Moon'},
  {lv:30, from:'To the Morning', text:'“We kept every lantern lit through the long night. Come slowly, dear Morning. Some dreams are still being delivered.” — The Moon Isles'},
+ {lv:34, from:'To Brave Lulu', text:'“Dear Lulu, thank you for flying the storm run when nobody else would. The valley keeps a warm chimney just for you.” — The Weather Station'},
+ {lv:40, from:'To Old Thunder', text:'“You were never angry, were you? Just lonely up there. Come down and sing with the wind chimes sometime.” — A small courier'},
 ];
 
 export const SHOP=[
@@ -43,6 +45,6 @@ export const REGIONS=[
  {id:1,name:'Cotton Village', sub:'Learn the winds · levels 1–10', icon:'cloud', tint:'#45b4ff'},
  {id:2,name:'Rainbow Market', sub:'Colors & bridges · levels 11–20', icon:'rainbow', tint:'#e8559a'},
  {id:3,name:'Sleeping Moon Isles', sub:'Night puzzles · levels 21–30', icon:'moon', tint:'#b18cff'},
- {id:4,name:'Storm Valley', sub:'Lightning timing · coming soon', icon:'bolt', tint:'#eda313', locked:true},
+ {id:4,name:'Storm Valley', sub:'Lightning timing · levels 31–40', icon:'bolt', tint:'#eda313'},
  {id:5,name:'Lost Post Tower', sub:'Portals & finale · coming soon', icon:'tower', tint:'#8a90b8', locked:true},
 ];

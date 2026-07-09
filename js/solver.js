@@ -7,7 +7,7 @@ function lcm(a, b){ const g = (x, y) => y ? g(y, x % y) : x; return a / g(a, b) 
 
 export function solveLevel(L, P){
   const moverCycle = P.movers.length ? P.movers.reduce((a, m) => lcm(a, m.seq.length * m.every), 1) : 1;
-  const cycle = lcm(moverCycle, P.moonCycle || 1);
+  const cycle = lcm(lcm(moverCycle, P.moonCycle || 1), P.zapCycle || 1);
   const keyOf = st => [
     st.r, st.c, st.dir,
     st.carrying.slice().sort().join(''),

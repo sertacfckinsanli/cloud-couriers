@@ -57,6 +57,16 @@ export function initAmbient(host){
       }
       ctx.globalAlpha = 1;
     }
+    if(host.classList.contains('storm') && !still){
+      // a soft sheet-lightning flicker roughly every few seconds
+      const phase = t % 5.4;
+      if(phase < 0.28){
+        ctx.globalAlpha = 0.16 * Math.sin((phase / 0.28) * Math.PI);
+        ctx.fillStyle = '#eaf0ff';
+        ctx.fillRect(0, 0, W, H);
+        ctx.globalAlpha = 1;
+      }
+    }
     for(const c of clouds){
       drawCloud(c);
       if(!still){

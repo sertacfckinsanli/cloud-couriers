@@ -7,7 +7,7 @@ function lcm(a, b){ const g = (x, y) => y ? g(y, x % y) : x; return a / g(a, b) 
 
 function fullCycle(P){
   const moverCycle = P.movers.reduce((a, m) => lcm(a, m.seq.length * m.every), 1);
-  return lcm(moverCycle, P.moonCycle || 1);
+  return lcm(lcm(moverCycle, P.moonCycle || 1), P.zapCycle || 1);
 }
 
 function solveAtOffset(L, P, offset, perfectOnly){

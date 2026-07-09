@@ -23,8 +23,8 @@ export function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(sa
 
 export function maxUnlocked(){
   let m=1;
-  for(let i=1;i<=30;i++){ if(save.stars[i]>0) m=Math.max(m,i+1); }
-  return Math.min(m,30);
+  for(let i=1;i<=40;i++){ if(save.stars[i]>0) m=Math.max(m,i+1); }
+  return Math.min(m,40);
 }
 
 export function resetSave(){

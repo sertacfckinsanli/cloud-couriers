@@ -162,4 +162,61 @@ export const LEVELS = [
   movers:[{cells:[[3,3],[3,4]],type:'storm',every:2,face:'😴',big:true}],
   gentleStorm:true, par:34, boss:'The Drowsy Moon',
   hint:{cell:'4,3',text:'Light the lantern, ride the moon: pink right, blue left, then rise at moonrise.'} },
+
+/* ============ Region 4: Storm Valley ============ */
+{ id:31, region:4, name:'Welcome to Storm Valley', obj:'Cross while the lightning rests',
+  rows:['.......','...B...','...-...','...Z...','...-...','...<...','...-...','...S...'],
+  letters:{'4,3':'b'}, zapPeriod:3, par:14,
+  hint:{cell:'3,3',text:'Lightning strikes on a rhythm — cross while the tile rests.'},
+  tutorial:[{cell:'3,3',text:'Lightning zones flash on a beat. Time your start!'}] },
+
+{ id:32, region:4, name:'Double Flash', obj:'Two zones, one safe window',
+  rows:['.......','...P...','...-...','...Z...','...Z...','...-...','...^...','...S...'],
+  letters:{'5,3':'p'}, zapPeriod:4, par:14,
+  hint:{cell:'6,3',text:'Both zones share one clock. Enter early in the calm.'} },
+
+{ id:33, region:4, name:'Rush Hour', obj:'Emergency mail — beat the clock!',
+  rows:['.......','.>---v.','.-...-.','.G...-.','.-...-.','.^Z<-<.','...-...','...S...'],
+  letters:{'6,3':'g'}, stamps:['2,5'], timeLimit:25, zapPeriod:3, par:10,
+  hint:{cell:'5,3',text:'Left is fast but flashes. The long lap is calm — if the clock allows.'} },
+
+{ id:34, region:4, name:'Lulu\'s Debut', obj:'Lulu tanks one storm hit — use it!',
+  rows:['.......','...Y...','...-...','...-...','...Z...','...-...','...>...','...S...'],
+  letters:{'2,3':'y'}, courier:'lulu', shield:1, zapPeriod:3,
+  movers:[{cells:[[3,2],[3,3],[3,4]],type:'storm',every:2}],
+  par:16, hint:{cell:'6,3',text:'Lightning below, a storm above. Lulu can shrug off exactly one hit.'},
+  tutorial:[{cell:'6,3',text:'Lulu\'s fluff absorbs ONE storm hit per flight!'}] },
+
+{ id:35, region:4, name:'Chime Path', obj:'Two deliveries between the flashes',
+  rows:['.......','.......','.rZdZl.','.B.-.P.','.u-^-u.','...-...','...S...'],
+  letters:{'4,2':'b','4,4':'p'}, zapPeriod:3, par:24,
+  hint:{cell:'4,3',text:'Each corridor flashes on the same beat. Turn the middle breeze in flight.'} },
+
+{ id:36, region:4, name:'Storm Bridge', obj:'Build the bridge, then thread the lightning',
+  rows:['.......','.....G.','.r-d.Z.','.Y.-.-.','.u-^=u.','...-...','...S...'],
+  letters:{'5,3':'y','3,5':'g'}, bridges:{'4,4':1}, zapPeriod:3, par:22,
+  hint:{cell:'4,3',text:'Yellow left builds the bridge. The last hop waits for calm skies.'} },
+
+{ id:37, region:4, name:'Twin Tempest', obj:'The spine crackles on every pass',
+  rows:['.......','.......','.r-d-l.','.P.Z.B.','.u-^-u.','...-...','...S...'],
+  letters:{'2,2':'b','2,4':'p'}, zapPeriod:3, par:26,
+  hint:{cell:'4,3',text:'Three passes over one flashing tile. Feel the beat, then commit.'} },
+
+{ id:38, region:4, name:'Emergency Mail', obj:'Two urgent letters, thirty seconds',
+  rows:['.......','.......','.r-d-l.','.B.-.P.','.uZ^Zu.','...-...','...-...','...S...'],
+  letters:{'6,3':'p','5,3':'b'}, timeLimit:30, zapPeriod:3, par:24,
+  hint:{cell:'4,3',text:'Pink right, dive back for blue, then left — the clock is ticking.'} },
+
+{ id:39, region:4, name:'The Gauntlet', obj:'Gate, lightning and a storm in one lane',
+  rows:['...G...','...%...','...Z...','...-...','...-...','...-...','...<...','...-...','...S...'],
+  letters:{'5,3':'g'}, gates:{'1,3':{}}, zapPeriod:3,
+  movers:[{cells:[[4,3],[4,4]],type:'storm',every:3}],
+  par:18, hint:{cell:'6,3',text:'Storm, lightning, sleepy gate — one calm beat threads all three.'} },
+
+{ id:40, region:4, name:'Storm Valley Finale', obj:'Boss: Old Thunder! 3 letters in the tempest',
+  rows:['...Y...','...Z...','.r-v-l.','.B.-.P.','.uZ^Zu.','...-...','...S...'],
+  letters:{'5,3':'p','2,4':'b','2,2':'y'}, stamps:['2,1'], zapPeriod:3,
+  movers:[{cells:[[3,3],[3,4]],type:'storm',every:2,big:true}],
+  gentleStorm:true, par:36, boss:'Old Thunder',
+  hint:{cell:'4,3',text:'Pink right, blue left, then rise through the thunder\'s rest.'} },
 ];

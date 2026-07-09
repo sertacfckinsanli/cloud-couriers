@@ -15,7 +15,7 @@ function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=Math.imul(31,h)+s.c
 export const ui = {
   stack:['title'], currentLevel:1, pendingOpts:null,
   show(name){
-    if(name!=='play') $('#phone').classList.remove('rainbow','night');
+    if(name!=='play') $('#phone').classList.remove('rainbow','night','storm');
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
     const sc=$('#screen-'+name); sc.classList.add('on'); sc.classList.add('fadein');
     setTimeout(()=>sc.classList.remove('fadein'),400);
@@ -30,7 +30,7 @@ export const ui = {
   play(){ this.show('map'); },
   openDaily(){
     const key=dailyKey(), seed=hashStr(key);
-    const id=(seed % 27)+4;                       // one of levels 4..30, rotates daily
+    const id=(seed % 37)+4;                       // one of levels 4..40, rotates daily
     this.currentLevel=id; this.pendingOpts={daily:true, seed};
     const L=LEVELS[id-1];
     $('#intro-region').textContent='Daily Delivery · '+key;
@@ -43,7 +43,7 @@ export const ui = {
   },
   openLevel(id){
     this.currentLevel=id; this.pendingOpts=null; const L=LEVELS[id-1];
-    const regionName = {1:'Cotton Village',2:'Rainbow Market',3:'Sleeping Moon Isles'}[L.region];
+    const regionName = {1:'Cotton Village',2:'Rainbow Market',3:'Sleeping Moon Isles',4:'Storm Valley'}[L.region];
     $('#intro-region').textContent = regionName + ' · Level '+id;
     $('#intro-name').textContent = L.name + (L.boss? ' 👑':'');
     $('#intro-obj').textContent = L.obj;
@@ -57,7 +57,7 @@ export const ui = {
   },
   startLevel(){ this.closeModal('modal-intro'); this.show('play'); game.load(this.currentLevel, this.pendingOpts||{}); },
   nextLevel(){ this.closeModal('modal-win'); const n=this.currentLevel+1;
-    if(n>30){ this.show('map'); toast('More regions coming soon!'); return; }
+    if(n>40){ this.show('map'); toast('More regions coming soon!'); return; }
     this.openLevel(n); },
   replay(withHint){ this.closeModal('modal-win'); this.closeModal('modal-lose'); this.show('play'); game.load(this.currentLevel, this.pendingOpts||{}); if(withHint) setTimeout(()=>game.hint(),400); },
   openModal(id){ $('#'+id).classList.add('on'); },
@@ -184,7 +184,7 @@ function renderMap(){
     const ids = Array.from({length:10},(_,i)=>(reg.id-1)*10+i+1);
     ids.forEach((id,i)=>{
       const x = W/2 + Math.sin(i*1.05)* (W*0.26) - 32;
-      const node=el('button','node'+(reg.id===2?' rainbow':reg.id===3?' nightnode':''));
+      const node=el('button','node'+(reg.id===2?' rainbow':reg.id===3?' nightnode':reg.id===4?' stormnode':''));
       const st=save.stars[id]||0;
       if(st>0){ node.classList.add('done'); node.innerHTML=id+'<span class="stars">'+starRow(st,13)+'</span>'; }
       else if(id===unlockedMax){ node.classList.add('current'); node.textContent=id; }

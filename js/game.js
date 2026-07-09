@@ -1,5 +1,5 @@
 // ---------- gameplay controller (board render, flight loop, win/lose) ----------
-import { parseLevel, initRun, stepSim, moverPos, moonOpen, COLORS } from './engine.js';
+import { parseLevel, initRun, stepSim, moverPos, moonOpen, zapOn, COLORS } from './engine.js';
 import { LEVELS } from './levels.js';
 import { $, el, toast } from './dom.js';
 import { sfx } from './audio.js';
@@ -9,7 +9,7 @@ import { courierSVG, houseSVG } from './svg.js';
 import { ui } from './ui.js';
 import { sealIcon, sealChip, windArrow, chevronFlow, postOfficeIcon, gateDoors,
          stormCloud, balloonIcon, stampRosette, fogPuff, envelopeIcon,
-         sparkStar, crossPuff, uiIcon, ghostArrow, moonGateIcon, lanternIcon } from './icons.js';
+         sparkStar, crossPuff, uiIcon, ghostArrow, moonGateIcon, lanternIcon, zapIcon } from './icons.js';
 import { solveLevel, adviseHint } from './solver.js';
 
 const DIR2DEG = { u:0, r:90, d:180, l:270 };
@@ -31,13 +31,19 @@ export const game = {
     this.cleanup();
     this.daily = !!opts.daily;
     this.L = LEVELS[id-1]; this.P = parseLevel(this.L);
+    // ghost preview must not leak timing: strip movers AND treat zaps as plain path
+    this._ghostTiles = {};
+    for(const k in this.P.tiles){
+      const t=this.P.tiles[k];
+      this._ghostTiles[k] = t.type==='zap' ? {type:'path'} : t;
+    }
     // courier: level-forced > explicit choice > last used (if unlocked) > Poffy
     const forced = this.L.courier;
     this.courierId = forced || opts.courier
       || (save.couriers[save.lastCourier] ? save.lastCourier : 'poffy');
     this.stats = COURIER_STATS[this.courierId] || COURIER_STATS.poffy;
     this.st = initRun(this.P, this.L, this.stats);
-    this._Pghost = Object.assign({}, this.P, { movers: [] });
+    this._Pghost = Object.assign({}, this.P, { movers: [], zapCycle: 1, tiles: this._ghostTiles });
     this._solution = null;
     this.arrows = Object.assign({}, this.P.arrowsInit);
     if(this.daily){
@@ -53,6 +59,8 @@ export const game = {
     $('#phone').classList.toggle('rainbow', this.L.region===2);
     $('#screen-play').classList.toggle('night', this.L.region===3);
     $('#phone').classList.toggle('night', this.L.region===3);
+    $('#screen-play').classList.toggle('storm', this.L.region===4);
+    $('#phone').classList.toggle('storm', this.L.region===4);
     this.seesHidden = !!this.stats.seesHidden;
     $('#hud-level').textContent='Lv '+id;
     $('#hud-timer').textContent=this.L.timeLimit? this.L.timeLimit+'s' : '0s';
@@ -109,6 +117,7 @@ export const game = {
       if(t.type==='bridge'){ d.innerHTML='<div class="arc"></div>'; }
       if(t.type==='moongate'){ d.innerHTML='<span class="moonface">'+moonGateIcon(Math.round(TS*0.66), moonOpen(this.L, this.st.mt))+'</span>'; }
       if(t.type==='switch'){ d.innerHTML='<span class="lantern">'+lanternIcon(Math.round(TS*0.62), false)+'</span>'; }
+      if(t.type==='zap'){ d.innerHTML='<span class="zapface">'+zapIcon(Math.round(TS*0.62), zapOn(this.L, this.st.mt))+'</span>'; }
       board.appendChild(d);
     }
     // letters + stamps overlays
@@ -299,7 +308,7 @@ export const game = {
     // (one tick per stepMs), so the pattern the player watches is exactly
     // the pattern they'll fly against
     clearInterval(this.moverIdleTimer);
-    if(!this.P.movers.length && this.P.moonCycle<=1) return;
+    if(!this.P.movers.length && this.P.moonCycle<=1 && this.P.zapCycle<=1) return;
     this.moverIdleTimer=setInterval(()=>{
       if(this.flying || this.paused) return;
       this.st.mt++;
@@ -317,6 +326,17 @@ export const game = {
         if(d.classList.contains('open')!==open){
           d.classList.toggle('open', open);
           d.querySelector('.moonface').innerHTML=moonGateIcon(Math.round(this.TS*0.66), open);
+        }
+      });
+    }
+    if(this.P.zapCycle>1){
+      const on=zapOn(this.L, this.st.mt);
+      const warn=!on && zapOn(this.L, this.st.mt+1);
+      document.querySelectorAll('.tile.zap').forEach(d=>{
+        d.classList.toggle('warn', warn);
+        if(d.classList.contains('on')!==on){
+          d.classList.toggle('on', on);
+          d.querySelector('.zapface').innerHTML=zapIcon(Math.round(this.TS*0.62), on);
         }
       });
     }
@@ -408,7 +428,8 @@ export const game = {
       toast('The lantern lights the hidden paths!');
     }
     if(e.t==='bump'){ sfx.bump(); this.jolt('squash'); this.shakeBoard(true); this.spark(this.st.r+','+this.st.c, sparkStar(20, e.shield?'#7fe8a8':'#ff8a9e'));
-      toast(e.shield ? 'Lulu puffed right through the storm!'
+      toast(e.shield ? (e.zap ? 'Lulu shrugged off the lightning!' : 'Lulu puffed right through the storm!')
+        : e.zap ? 'Zap! The lightning pushed '+this.stats.name+' back!'
         : e.storm ? 'The grumpy cloud shoved '+this.stats.name+' back!'
         : 'Bumped by a balloon!'); }
     if(e.t==='bounceHome'){ sfx.tap(); this.jolt('squash'); }
@@ -464,7 +485,7 @@ export const game = {
     $('#win-title').textContent = this.daily?'Daily Delivered!':(stars===3?'Perfect Delivery!':'Mail Delivered!');
     $('#win-msg').textContent = `Finished in ${time.toFixed(1)}s · ${this.st.mistakes===0?'no mistakes!':this.st.mistakes+' little bump'+(this.st.mistakes>1?'s':'')}` + (wantStamps? ` · stamps ${gotStamps}/${wantStamps}`:'');
     $('#win-stamps').innerHTML = rewardText + stampRosette(16);
-    $('#btn-next').style.display = (this.daily || id>=30)?'none':'';
+    $('#btn-next').style.display = (this.daily || id>=40)?'none':'';
     const row=$('#win-stars'); row.innerHTML='';
     for(let i=0;i<3;i++){ const s=el('span','starslot','★'); row.appendChild(s); }
     sfx.win();
@@ -499,11 +520,13 @@ export const game = {
       storm:'A grumpy storm cloud caught Poffy! Try different timing.',
       bridge:'The rainbow bridge wasn\'t there yet. Deliver a letter first!',
       tired:'Poffy flew in circles and got sleepy. Turn a breeze to break the loop!',
-      timeup:'Time\'s up! The market crowd got impatient. Try a faster route.',
+      timeup:'Time\'s up! The mail was urgent. Try a faster route.',
+      zap:'Lightning caught '+this.stats.name+'! Watch the rhythm — cross while it rests.',
     };
-    const accent=this.L.courier==='mimo'?'#b18cff':'#45b4ff';
+    const accent=this.stats.accent;
     const faces={
       storm: stormCloud(84),
+      zap: zapIcon(84, true),
       timeup: '<span style="color:#e8559a">'+uiIcon('clock',72)+'</span>',
     };
     $('#lose-face').innerHTML=faces[reason]||courierSVG(accent,96,'dizzy');

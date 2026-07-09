@@ -7,7 +7,7 @@ function lcm(a, b) { const g = (x, y) => y ? g(y, x % y) : x; return a / g(a, b)
 function solve(L) {
   const P = parseLevel(L);
   const moverCycle = P.movers.length ? P.movers.reduce((acc, m) => lcm(acc, m.seq.length * m.every), 1) : 1;
-  const cycle = lcm(moverCycle, P.moonCycle || 1);
+  const cycle = lcm(lcm(moverCycle, P.moonCycle || 1), P.zapCycle || 1);
   const stepMs = L.stepMs || 440;
   const maxSteps = L.timeLimit ? Math.floor((L.timeLimit * 1000) / stepMs) - 1 : 88;
 

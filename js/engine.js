@@ -28,6 +28,7 @@ export function parseLevel(L){
     if(ch==='M'){ tiles[k]={type:'moongate'}; continue; }
     if(ch==='h'){ tiles[k]={type:'path', hidden:true}; continue; }
     if(ch==='s'){ tiles[k]={type:'switch'}; continue; }
+    if(ch==='Z'){ tiles[k]={type:'zap'}; continue; }
     tiles[k]={type:'sky'};
   }
   const letters = Object.assign({}, L.letters||{});
@@ -38,8 +39,10 @@ export function parseLevel(L){
     return { type:m.type||'storm', seq, every:m.every||1, face:m.face||null, big:m.big||false };
   });
   const hasMoon = Object.values(tiles).some(t=>t.type==='moongate');
+  const hasZap = Object.values(tiles).some(t=>t.type==='zap');
   return { rows:R, cols:C, tiles, start, arrowsInit:arrows, letters, stamps, movers,
            moonCycle: hasMoon ? 2*(L.moonPeriod||3) : 1,
+           zapCycle: hasZap ? 2*(L.zapPeriod||3) : 1,
            totalLetters:Object.keys(letters).length };
 }
 
@@ -48,12 +51,17 @@ export function moonOpen(L, mt){
   const p = L.moonPeriod||3;
   return (mt % (2*p)) < p;
 }
+// lightning zones rest for p ticks, then strike for p ticks — same shared clock
+export function zapOn(L, mt){
+  const p = L.zapPeriod||3;
+  return (mt % (2*p)) >= p;
+}
 
 export function initRun(P, L, stats){
   stats = stats || {};
   return {
     r:P.start.r, c:P.start.c, dir:L.startDir||'u',
-    carrying:[], cap:stats.cap||L.carryCap||1, shield:stats.shield||0,
+    carrying:[], cap:stats.cap||L.carryCap||1, shield:stats.shield||L.shield||0,
     lettersLeft:Object.assign({}, P.letters),
     housesDone:{}, deliveredCount:0,
     stampsGot:{}, mistakes:0, steps:0, mt:(L.moverOffset||0),
@@ -83,6 +91,13 @@ export function stepSim(P, L, st, io){
     ev.push({t:'bump', key:st.r+','+st.c, storm:true});
     return ev;
   }
+  // lightning striking the tile the courier stands on
+  const hk0 = st.r+','+st.c;
+  if(P.tiles[hk0].type==='zap' && zapOn(L, st.mt)){
+    if(st.shield>0){ st.shield--; st.dir=OPP[st.dir]; st.mistakes++; st.steps++; ev.push({t:'bump',key:hk0,zap:true,shield:true}); return ev; }
+    if(L.gentleStorm){ st.dir=OPP[st.dir]; st.mistakes++; st.steps++; ev.push({t:'bump',key:hk0,zap:true}); return ev; }
+    st.status='lost'; st.reason='zap'; ev.push({t:'lose',reason:'zap'}); return ev;
+  }
   // 2) direction from tile under courier
   const hk = st.r+','+st.c, ht = P.tiles[hk];
   let d = st.dir;
@@ -104,6 +119,12 @@ export function stepSim(P, L, st, io){
   }
   if(nt.type==='moongate' && !moonOpen(L, st.mt)){
     st.dir=OPP[d]; st.mistakes++; ev.push({t:'bounceGate',key:nk,color:null,moon:true}); return ev;
+  }
+  // stepping INTO an active lightning zone
+  if(nt.type==='zap' && zapOn(L, st.mt)){
+    if(st.shield>0){ st.shield--; st.dir=OPP[d]; st.mistakes++; ev.push({t:'bump',key:nk,zap:true,shield:true}); return ev; }
+    if(L.gentleStorm){ st.dir=OPP[d]; st.mistakes++; ev.push({t:'bump',key:nk,zap:true}); return ev; }
+    st.status='lost'; st.reason='zap'; ev.push({t:'lose',reason:'zap'}); return ev;
   }
   const mv = moverAtCell(P, st.mt, nr, nc);
   if(mv){

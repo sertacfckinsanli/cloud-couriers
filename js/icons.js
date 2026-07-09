@@ -105,6 +105,13 @@ export function lanternIcon(size = 30, lit = false) {
     <path d="M32 28 l3 6 -3 8 -3 -8Z" fill="${lit?'#f5a623':'#a9b0c9'}"/>
     <path d="M26 50 h12" stroke="${lit?'#eda313':'#8a90b8'}" stroke-width="3.5" stroke-linecap="round"/>`);
 }
+export function zapIcon(size = 30, on = false) {
+  return on
+    ? svg(size, `<circle cx="32" cy="32" r="26" fill="#fff6c9" opacity=".9"/>
+        <path d="M36 6 L18 36 h11 L26 58 L48 26 H33Z" fill="#ffd34d" stroke="#eda313" stroke-width="3" stroke-linejoin="round"/>
+        <g stroke="#ffe9a8" stroke-width="3" stroke-linecap="round"><path d="M8 20 l6 4 M56 20 l-6 4 M10 46 l7 -3 M54 46 l-7 -3"/></g>`)
+    : svg(size, `<path d="M36 10 L22 34 h9 L28 54 L44 28 H32Z" fill="none" stroke="#8a90b8" stroke-width="3.5" stroke-linejoin="round" opacity=".8"/>`);
+}
 export function fogPuff(size = 40) {
   return svg(size, `
     <g fill="#ffffff" opacity=".9" stroke="#d8c7ee" stroke-width="2.5">
