@@ -5,6 +5,11 @@ export const ARROWCH = { '^':'u', '>':'r', 'v':'d', '<':'l' };
 export const CURRCH  = { 'u':'u', 'r':'r', 'd':'d', 'l':'l' };
 export const HOUSECH = { 'B':'b', 'P':'p', 'Y':'y', 'G':'g' };
 export const MAX_STEPS = 90;
+// Poffy's step time is the reference clock for every hazard (storms, moon
+// gates, lightning). A courier's own speed never speeds hazards up or down —
+// mt advances by stepMs/BASE_STEP per move, so hazards keep a constant
+// wall-clock rhythm and a fast courier (Zippy) genuinely out-runs them.
+export const BASE_STEP = 440;
 export const COLORS = {
   b:{name:'blue',  sym:'💙', css:'#45b4ff', deep:'#1b86d9'},
   p:{name:'pink',  sym:'🌸', css:'#ff85bd', deep:'#e8559a'},
@@ -49,12 +54,12 @@ export function parseLevel(L){
 // moon gates open and close together on a fixed, fully deterministic cycle
 export function moonOpen(L, mt){
   const p = L.moonPeriod||3;
-  return (mt % (2*p)) < p;
+  return (Math.floor(mt) % (2*p)) < p;
 }
 // lightning zones rest for p ticks, then strike for p ticks — same shared clock
 export function zapOn(L, mt){
   const p = L.zapPeriod||3;
-  return (mt % (2*p)) >= p;
+  return (Math.floor(mt) % (2*p)) >= p;
 }
 
 export function initRun(P, L, stats){
@@ -62,6 +67,9 @@ export function initRun(P, L, stats){
   return {
     r:P.start.r, c:P.start.c, dir:L.startDir||'u',
     carrying:[], cap:stats.cap||L.carryCap||1, shield:stats.shield||L.shield||0,
+    // fast couriers (rate<1) out-run hazards; slow couriers are clamped to 1
+    // so hazards never move *faster* than Poffy's baseline — no unwinnable phase
+    hazardRate:(stats.stepMs ? Math.min(1, stats.stepMs/BASE_STEP) : 1),
     lettersLeft:Object.assign({}, P.letters),
     housesDone:{}, deliveredCount:0,
     stampsGot:{}, mistakes:0, steps:0, mt:(L.moverOffset||0),
@@ -70,7 +78,7 @@ export function initRun(P, L, stats){
   };
 }
 
-export function moverPos(P, i, mt){ const m=P.movers[i]; return m.seq[Math.floor(mt/m.every) % m.seq.length]; }
+export function moverPos(P, i, mt){ const m=P.movers[i]; return m.seq[Math.floor(Math.floor(mt)/m.every) % m.seq.length]; }
 export function moverAtCell(P, mt, r, c){
   for(let i=0;i<P.movers.length;i++){ const p=moverPos(P,i,mt); if(p[0]===r&&p[1]===c) return P.movers[i]; }
   return null;
@@ -81,10 +89,11 @@ export function moverAtCell(P, mt, r, c){
 export function stepSim(P, L, st, io){
   const ev = [];
   if(st.status!=='flying') return ev;
-  // 1) movers advance. A storm drifting onto the courier is never lethal
-  //    (the player can't dodge that) — it shoves the courier back instead.
-  //    Balloons simply float past.
-  st.mt++;
+  // 1) hazard clock advances by the courier's rate (Poffy = 1). Fast couriers
+  //    see hazards move slower relative to their steps — a real speed edge.
+  //    A storm drifting onto the courier is never lethal (can't be dodged) —
+  //    it shoves the courier back instead. Balloons simply float past.
+  st.mt += st.hazardRate;
   const mHere = moverAtCell(P, st.mt, st.r, st.c);
   if(mHere && mHere.type==='storm'){
     st.dir = OPP[st.dir]; st.mistakes++; st.steps++;

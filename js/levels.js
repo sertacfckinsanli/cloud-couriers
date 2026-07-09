@@ -214,9 +214,8 @@ export const LEVELS = [
   par:18, hint:{cell:'6,3',text:'Storm, lightning, sleepy gate — one calm beat threads all three.'} },
 
 { id:40, region:4, name:'Storm Valley Finale', obj:'Boss: Old Thunder! 3 letters in the tempest',
-  rows:['...Y...','...Z...','.r-v-l.','.B.-.P.','.uZ^Zu.','...-...','...S...'],
+  rows:['...Y...','...Z...','.r-v-l.','.B.-.P.','.uZ^Zu.','...-...','...-...','...S...'],
   letters:{'5,3':'p','2,4':'b','2,2':'y'}, stamps:['2,1'], zapPeriod:3,
-  movers:[{cells:[[3,3],[3,4]],type:'storm',every:2,big:true}],
   gentleStorm:true, par:36, boss:'Old Thunder',
   hint:{cell:'4,3',text:'Pink right, blue left, then rise through the thunder\'s rest.'} },
 ];

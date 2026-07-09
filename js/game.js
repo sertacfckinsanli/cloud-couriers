@@ -311,7 +311,7 @@ export const game = {
     if(!this.P.movers.length && this.P.moonCycle<=1 && this.P.zapCycle<=1) return;
     this.moverIdleTimer=setInterval(()=>{
       if(this.flying || this.paused) return;
-      this.st.mt++;
+      this.st.mt += this.st.hazardRate;
       this.renderMovers();
     }, this.stepMs());
   },
