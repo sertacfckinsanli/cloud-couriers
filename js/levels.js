@@ -181,10 +181,10 @@ export const LEVELS = [
   hint:{cell:'5,3',text:'Left is fast but flashes. The long lap is calm — if the clock allows.'} },
 
 { id:34, region:4, name:'Lulu\'s Debut', obj:'Lulu tanks one storm hit — use it!',
-  rows:['.......','...Y...','...-...','...-...','...Z...','...-...','...>...','...S...'],
-  letters:{'2,3':'y'}, courier:'lulu', shield:1, zapPeriod:3,
+  rows:['.......','...Y...','...-...','...-...','...-...','...-...','...>...','...S...'],
+  letters:{'2,3':'y'}, courier:'lulu', shield:1,
   movers:[{cells:[[3,2],[3,3],[3,4]],type:'storm',every:2}],
-  par:16, hint:{cell:'6,3',text:'Lightning below, a storm above. Lulu can shrug off exactly one hit.'},
+  par:16, hint:{cell:'6,3',text:'Start when the storm drifts aside — or let Lulu shrug off one bump.'},
   tutorial:[{cell:'6,3',text:'Lulu\'s fluff absorbs ONE storm hit per flight!'}] },
 
 { id:35, region:4, name:'Chime Path', obj:'Two deliveries between the flashes',
@@ -198,9 +198,9 @@ export const LEVELS = [
   hint:{cell:'4,3',text:'Yellow left builds the bridge. The last hop waits for calm skies.'} },
 
 { id:37, region:4, name:'Twin Tempest', obj:'The spine crackles on every pass',
-  rows:['.......','.......','.r-d-l.','.P.Z.B.','.u-^-u.','...-...','...S...'],
-  letters:{'2,2':'b','2,4':'p'}, zapPeriod:3, par:26,
-  hint:{cell:'4,3',text:'Three passes over one flashing tile. Feel the beat, then commit.'} },
+  rows:['.......','.......','.r-d-l.','.P.Z.B.','.u-^-u.','...-...','...-...','...S...'],
+  letters:{'2,2':'b','2,4':'p'}, zapPeriod:4, par:26,
+  hint:{cell:'4,3',text:'One lap = one lightning cycle. Catch the beat once and every pass is safe.'} },
 
 { id:38, region:4, name:'Emergency Mail', obj:'Two urgent letters, thirty seconds',
   rows:['.......','.......','.r-d-l.','.B.-.P.','.uZ^Zu.','...-...','...-...','...S...'],
