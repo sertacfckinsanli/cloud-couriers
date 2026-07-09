@@ -159,8 +159,7 @@ export const LEVELS = [
 { id:30, region:3, name:'Sleeping Moon Finale', obj:'Boss: the Drowsy Moon! 3 letters in the dark',
   rows:['...Y...','...M...','.rhvhl.','.B.-.P.','.uM^Mu.','...s...','...-...','...S...'],
   letters:{'6,3':'p','2,4':'b','2,2':'y'}, moonPeriod:3,
-  movers:[{cells:[[3,3],[3,4]],type:'storm',every:2,face:'😴',big:true}],
-  gentleStorm:true, par:34, boss:'The Drowsy Moon',
+  par:34, boss:'The Drowsy Moon',
   hint:{cell:'4,3',text:'Light the lantern, ride the moon: pink right, blue left, then rise at moonrise.'} },
 
 /* ============ Region 4: Storm Valley ============ */
