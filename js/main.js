@@ -10,14 +10,21 @@ import { initAmbient } from './ambient.js';
 window.ui = ui;
 window.game = game;
 
-// fill static chrome icons declared as <span data-icon="name" data-size="20">
-document.querySelectorAll('[data-icon]').forEach(elm => {
-  const n = elm.dataset.icon, s = parseInt(elm.dataset.size || '20', 10);
-  if (n === 'stamp') elm.innerHTML = stampRosette(s);
-  else if (n === 'envelope') elm.innerHTML = envelopeIcon(s);
-  else if (n === 'postoffice') elm.innerHTML = postOfficeIcon(s);
-  else elm.innerHTML = uiIcon(n, s);
-});
+// fill icons declared as <span data-icon="name" data-size="20"> within root (default: whole doc)
+function hydrateIcons(root = document){
+  root.querySelectorAll('[data-icon]').forEach(elm => {
+    if (elm.dataset.iconDone) return;              // idempotent for dynamically-added nodes
+    const n = elm.dataset.icon, s = parseInt(elm.dataset.size || '20', 10);
+    if (!s) { elm.dataset.iconDone = '1'; return; } // size 0 = decorative placeholder, skip
+    if (n === 'stamp') elm.innerHTML = stampRosette(s);
+    else if (n === 'envelope') elm.innerHTML = envelopeIcon(s);
+    else if (n === 'postoffice') elm.innerHTML = postOfficeIcon(s);
+    else elm.innerHTML = uiIcon(n, s);
+    elm.dataset.iconDone = '1';
+  });
+}
+window.__hydrateIcons = hydrateIcons;
+hydrateIcons();
 
 // title screen poffy
 $('#title-poffy').innerHTML = courierSVG('#7fc3f7', 120);

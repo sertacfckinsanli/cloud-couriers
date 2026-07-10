@@ -2,7 +2,8 @@
 const SAVE_KEY = 'cloudCouriers_v1';
 
 export const save = { stars:{}, stamps:0, bought:{}, letters:{}, sfx:true,
-  daily:{ last:'', streak:0 }, couriers:{ poffy:1 }, lastCourier:'poffy' };
+  daily:{ last:'', streak:0 }, couriers:{ poffy:1 }, lastCourier:'poffy',
+  rooms:{}, metaWelcome:0 };
 try{ const s = localStorage.getItem(SAVE_KEY); if(s) Object.assign(save, JSON.parse(s)); }catch(e){}
 if(!save.daily) save.daily = { last:'', streak:0 };
 if(!save.couriers) save.couriers = { poffy:1 };
@@ -29,5 +30,6 @@ export function maxUnlocked(){
 
 export function resetSave(){
   save.stars={}; save.stamps=0; save.bought={}; save.letters={};
+  save.rooms={}; save.metaWelcome=0;
   persist();
 }

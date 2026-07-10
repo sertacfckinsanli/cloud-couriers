@@ -7,6 +7,7 @@ import { courierSVG } from './svg.js';
 import { COURIERS, COURIER_STATS, STORY, SHOP, REGIONS } from './data.js';
 import { game } from './game.js';
 import { uiIcon, starRow, decoIcon, stampRosette } from './icons.js';
+import { renderPostMap } from './postmap.js';
 
 const goldStars = n => `<span style="color:#eda313;display:inline-flex;gap:1px;">${uiIcon('star',13).repeat(n)}</span>`;
 
@@ -24,6 +25,7 @@ export const ui = {
     if(name==='couriers') renderCouriers();
     if(name==='collection') renderCollection();
     if(name==='post') renderPost();
+    if(name==='postmap') renderPostMap();
     sfx.tap();
   },
   back(){ this.stack.pop(); const prev=this.stack[this.stack.length-1]||'title'; this.show(prev); },

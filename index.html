@@ -46,7 +46,7 @@
       <button class="tab active"><span class="ticon" data-icon="map" data-size="22"></span>Map</button>
       <button class="tab" onclick="ui.show('couriers')"><span class="ticon" data-icon="cloud" data-size="22"></span>Couriers</button>
       <button class="tab" onclick="ui.show('collection')"><span class="ticon" data-icon="mail" data-size="22"></span>Letters</button>
-      <button class="tab" onclick="ui.show('post')"><span class="ticon" data-icon="post" data-size="22"></span>Post Office</button>
+      <button class="tab" onclick="ui.show('postmap')"><span class="ticon" data-icon="post" data-size="22"></span>Post Office</button>
     </div>
   </div>
 
@@ -70,6 +70,9 @@
       <div id="shop-list"></div>
     </div>
   </div>
+
+  <!-- POST OFFICE META-MAP (built by js/postmap.js) -->
+  <div class="screen" id="screen-postmap"></div>
 
   <!-- GAMEPLAY -->
   <div class="screen" id="screen-play">

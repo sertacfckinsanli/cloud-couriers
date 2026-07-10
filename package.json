@@ -8,5 +8,21 @@
     "dev": "npx -y http-server . -p 5591 -a 0.0.0.0 -c-1",
     "test": "node test-solver.mjs",
     "build": "node scripts/build-single.mjs"
+  },
+  "main": "sw.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sertacfckinsanli/cloud-couriers.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sertacfckinsanli/cloud-couriers/issues"
+  },
+  "homepage": "https://github.com/sertacfckinsanli/cloud-couriers#readme",
+  "dependencies": {
+    "jimp": "^0.22.12",
+    "pngjs": "^7.0.0"
   }
 }
