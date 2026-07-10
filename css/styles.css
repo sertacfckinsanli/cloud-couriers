@@ -485,6 +485,12 @@ button{font-family:var(--font); border:none; cursor:pointer; color:var(--ink);}
 
 /* rotated landscape container (auto-landscape for the whole Post Office section) */
 #pm-rot{position:absolute; left:0; top:0; overflow:hidden;}
+/* when the DEVICE itself is landscape (auto-rotate turned the viewport), the Post Office
+   renders natively — no CSS rotation on top (that double-rotation broke the layout).
+   Works for both landscape-left and landscape-right; the OS decides which way is up. */
+@media (orientation: landscape){
+  body.pm-on #phone{ width:min(100vw,932px); height:min(100dvh,430px); border-radius:0; }
+}
 /* map container + card progress */
 #pm-map{position:absolute; inset:0;}
 .pm-progress{position:absolute; top:10px; right:10px; z-index:4; background:#ffffffdd; color:var(--ink);

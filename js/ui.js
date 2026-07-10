@@ -18,6 +18,8 @@ export const ui = {
   stack:['title'], currentLevel:1, pendingOpts:null,
   show(name){
     if(name!=='play') $('#phone').classList.remove('rainbow','night','storm');
+    // postmap sizes #phone to true landscape when the device is physically rotated
+    document.body.classList.toggle('pm-on', name==='postmap');
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
     const sc=$('#screen-'+name); sc.classList.add('on'); sc.classList.add('fadein');
     setTimeout(()=>sc.classList.remove('fadein'),400);
