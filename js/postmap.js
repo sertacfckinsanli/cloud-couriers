@@ -381,6 +381,7 @@ function build(){
       <div id="pm-hud">
         <button class="iconbtn" id="pm-back" aria-label="Back"><span data-icon="back" data-size="20"></span></button>
         <div class="pill"><span data-icon="stamp" data-size="20"></span> <span id="pm-stamps">0</span></div>
+        <button class="iconbtn" id="pm-reset" aria-label="Reset"><span data-icon="restart" data-size="20"></span></button>
         <button class="iconbtn" id="pm-settings" aria-label="Settings"><span data-icon="gear" data-size="20"></span></button>
       </div>
       <div id="pm-hint"></div>
@@ -427,6 +428,7 @@ function build(){
   applyStaticI18n();
   if(window.__hydrateIcons) window.__hydrateIcons(screen);
   screen.querySelector('#pm-back').onclick     = ()=> window.ui.back();
+  screen.querySelector('#pm-reset').onclick    = ()=> resetTestData();
   screen.querySelector('#pm-settings').onclick = ()=> window.ui.openSettings();
   screen.querySelector('#pm-rv-back').onclick  = ()=>{ if(dlgActive) return; exitRoom(); };
   els.build.onclick = openPopup;
@@ -541,6 +543,25 @@ function buildScene(){
     els.scene.appendChild(room);
   });
   els.stamps.textContent=save.stamps|0;
+}
+// TEST-ONLY: wipes all room progress and refills stamps so every upgrade is affordable again.
+// Remove the #pm-reset button + its click handler + this function (and resetArmed/resetArmTimer) once testing is done.
+let resetArmed=false, resetArmTimer=null;
+function resetTestData(){
+  if(!resetArmed){
+    resetArmed=true; sfx.tap();
+    pmToast(pick(L('Tap again to reset & refill stamps','Sıfırlamak ve puanları doldurmak için tekrar dokun')));
+    clearTimeout(resetArmTimer);
+    resetArmTimer=setTimeout(()=>{ resetArmed=false; },3000);
+    return;
+  }
+  resetArmed=false; clearTimeout(resetArmTimer);
+  save.rooms = {};
+  save.stamps = ROOMS.reduce((sum,r)=>sum+r.tasks.reduce((s,tk)=>s+tk.cost,0),0);
+  persist();
+  if(currentRoomId){ closePopup(); endDialogueSilent(); els.roomview.classList.remove('on'); currentRoomId=null; }
+  layout(); buildScene(); centerOn(roomById(ORDER[0]));
+  pmToast('🔄 Reset!');
 }
 function onRoom(r){
   const state=roomState(r);

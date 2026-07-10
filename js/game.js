@@ -586,7 +586,9 @@ export const game = {
     if(ttl) setTimeout(()=>bub.remove(),ttl);
   },
   showTutorial(){
-    const tut=this.L.tutorial; if(!tut||!tut.length||save.stars[this.L.id]) { this.tut=null; return; }
+    // TEST-ONLY: tutorial bubbles show every time now, even after the level is starred.
+    // Revert by restoring: `|| save.stars[this.L.id]` to the condition below.
+    const tut=this.L.tutorial; if(!tut||!tut.length) { this.tut=null; return; }
     this.tut=tut; this.tutIdx=0; this.showTutStep();
   },
   showTutStep(){
