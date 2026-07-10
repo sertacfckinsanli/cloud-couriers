@@ -12,6 +12,7 @@ import { sealIcon, sealChip, windArrow, chevronFlow, postOfficeIcon, gateDoors,
          sparkStar, crossPuff, uiIcon, ghostArrow, moonGateIcon, lanternIcon, zapIcon } from './icons.js';
 import { solveLevel, adviseHint } from './solver.js';
 import { L, pick, t } from './i18n.js';
+import { playRegion, victory as musicVictory } from './music.js';
 
 const DIR2DEG = { u:0, r:90, d:180, l:270 };
 const DIR_KEY = { u:'dirUp', r:'dirRight', d:'dirDown', l:'dirLeft' };
@@ -71,6 +72,7 @@ export const game = {
     $('#char-chip').innerHTML = courierSVG(this.stats.accent,34)+' '+this.stats.name
       + (this.L.courier ? '' : ' <span class="swapmark">'+uiIcon('restart',11)+'</span>');
     const go=$('#btn-go'); go.textContent=t('readyToFly'); go.classList.remove('flying');
+    playRegion(this.L.region);    // region-specific background loop
     this.buildBoard();
     this.renderObjectives();
     this.startMoverIdle();
@@ -492,7 +494,7 @@ export const game = {
     $('#btn-next').style.display = (this.daily || id>=40)?'none':'';
     const row=$('#win-stars'); row.innerHTML='';
     for(let i=0;i<3;i++){ const s=el('span','starslot','★'); row.appendChild(s); }
-    sfx.win();
+    sfx.win(); musicVictory();
     setTimeout(()=>{ ui.openModal('modal-win'); this.burst();
       [...row.children].forEach((s,i)=>{ if(i<stars) setTimeout(()=>{s.classList.add('won'); sfx.star();}, 350+i*380); });
       setTimeout(()=>ui.showStoryIfAny(), 1700);

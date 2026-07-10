@@ -6,6 +6,7 @@ import { $ } from './dom.js';
 import { uiIcon, stampRosette, envelopeIcon, postOfficeIcon } from './icons.js';
 import { initAmbient } from './ambient.js';
 import { applyI18n } from './i18n.js';
+import { initMusic, playTrack } from './music.js';
 
 // expose for inline onclick handlers in index.html
 window.ui = ui;
@@ -33,6 +34,10 @@ $('#title-poffy').innerHTML = courierSVG('#7fc3f7', 120);
 
 // drifting parallax clouds behind every screen
 initAmbient($('#phone'));
+
+// background music — main theme queued now, starts on the first user gesture
+initMusic();
+playTrack('main');
 
 // tap anywhere to dismiss tutorial / hint bubbles
 document.addEventListener('pointerdown', (e) => {

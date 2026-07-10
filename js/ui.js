@@ -9,6 +9,7 @@ import { game } from './game.js';
 import { uiIcon, starRow, decoIcon, stampRosette } from './icons.js';
 import { renderPostMap } from './postmap.js';
 import { t, pick, setLang, lang, applyI18n } from './i18n.js';
+import { playTrack, setMusicEnabled, musicEnabled, duckForAd, unduckAfterAd } from './music.js';
 
 const goldStars = n => `<span style="color:#eda313;display:inline-flex;gap:1px;">${uiIcon('star',13).repeat(n)}</span>`;
 
@@ -29,6 +30,9 @@ export const ui = {
     if(name==='collection') renderCollection();
     if(name==='post') renderPost();
     if(name==='postmap') renderPostMap();
+    // background music per screen ('play' picks a region track from game.load)
+    if(name==='postmap') playTrack('renovation');
+    else if(name!=='play') playTrack('main');
     sfx.tap();
   },
   back(){ this.stack.pop(); const prev=this.stack[this.stack.length-1]||'title'; this.show(prev); },
@@ -72,6 +76,7 @@ export const ui = {
   },
   openSettings(){
     $('#sw-sfx').classList.toggle('on',save.sfx);
+    $('#sw-music').classList.toggle('on',musicEnabled());
     $('#lang-en').classList.toggle('active', lang()==='en');
     $('#lang-tr').classList.toggle('active', lang()==='tr');
     const inGame=$('#screen-play').classList.contains('on');
@@ -96,6 +101,7 @@ export const ui = {
   adCallback:null, adTimer:null,
   playAd(onDone){
     this.adCallback = onDone;
+    duckForAd();          // silence music so it doesn't fight the ad's audio
     game.setPaused(true); // freeze the flight (no-op when not flying)
     const closeBtn = $('#ad-close');
     closeBtn.disabled = true; closeBtn.classList.remove('ready'); closeBtn.textContent = '20';
@@ -124,6 +130,7 @@ export const ui = {
     clearInterval(this.adTimer);
     const v = $('#ad-video'); try { v.pause(); } catch(e){}
     this.closeModal('modal-ad');
+    unduckAfterAd();
     game.setPaused(false);
     const cb = this.adCallback; this.adCallback = null;
     if(cb) cb();
@@ -155,6 +162,7 @@ export const ui = {
     this.openModal('modal-courier');
   },
   toggleSfx(){ save.sfx=!save.sfx; persist(); $('#sw-sfx').classList.toggle('on',save.sfx); sfx.tap(); },
+  toggleMusic(){ const on=!musicEnabled(); setMusicEnabled(on); $('#sw-music').classList.toggle('on',on); sfx.tap(); },
   resetProgress(){ resetSave(); this.closeModal('modal-settings'); this.show('title'); toast(t('progressReset')); },
   pendingStory:null,
   maybeStory(lv){

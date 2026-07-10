@@ -3,7 +3,7 @@ const SAVE_KEY = 'cloudCouriers_v1';
 
 const detectLang = () => (typeof navigator!=='undefined' && /^tr/i.test(navigator.language||'')) ? 'tr' : 'en';
 
-export const save = { stars:{}, stamps:0, bought:{}, letters:{}, sfx:true,
+export const save = { stars:{}, stamps:0, bought:{}, letters:{}, sfx:true, music:true,
   daily:{ last:'', streak:0 }, couriers:{ poffy:1 }, lastCourier:'poffy',
   rooms:{}, metaWelcome:0, lang: detectLang() };
 try{ const s = localStorage.getItem(SAVE_KEY); if(s) Object.assign(save, JSON.parse(s)); }catch(e){}
