@@ -5,6 +5,7 @@ import { courierSVG } from './svg.js';
 import { $ } from './dom.js';
 import { uiIcon, stampRosette, envelopeIcon, postOfficeIcon } from './icons.js';
 import { initAmbient } from './ambient.js';
+import { applyI18n } from './i18n.js';
 
 // expose for inline onclick handlers in index.html
 window.ui = ui;
@@ -25,6 +26,7 @@ function hydrateIcons(root = document){
 }
 window.__hydrateIcons = hydrateIcons;
 hydrateIcons();
+applyI18n();
 
 // title screen poffy
 $('#title-poffy').innerHTML = courierSVG('#7fc3f7', 120);

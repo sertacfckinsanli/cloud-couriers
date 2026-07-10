@@ -8,6 +8,7 @@ import { COURIERS, COURIER_STATS, STORY, SHOP, REGIONS } from './data.js';
 import { game } from './game.js';
 import { uiIcon, starRow, decoIcon, stampRosette } from './icons.js';
 import { renderPostMap } from './postmap.js';
+import { t, pick, setLang, lang, applyI18n } from './i18n.js';
 
 const goldStars = n => `<span style="color:#eda313;display:inline-flex;gap:1px;">${uiIcon('star',13).repeat(n)}</span>`;
 
@@ -35,31 +36,31 @@ export const ui = {
     const id=(seed % 37)+4;                       // one of levels 4..40, rotates daily
     this.currentLevel=id; this.pendingOpts={daily:true, seed};
     const L=LEVELS[id-1];
-    $('#intro-region').textContent='Daily Delivery · '+key;
-    $('#intro-name').textContent='Daily: '+L.name;
-    $('#intro-obj').textContent='Today\'s breezes are scrambled — find the route!';
+    $('#intro-region').textContent=t('dailyDeliveryTitle',{key});
+    $('#intro-name').textContent=t('dailyLevelName',{name:pick(L.name)});
+    $('#intro-obj').textContent=t('todaysBreezes');
     const g=$('#intro-goals'); g.innerHTML='';
-    g.appendChild(el('div','goalrow','<span class="gicon">'+goldStars(1)+'</span> Deliver every letter'));
-    g.appendChild(el('div','goalrow','<span class="gicon" style="color:#e8559a">'+uiIcon('gift',16)+'</span> '+(dailyDone()?'Done today · streak '+save.daily.streak:'+2 stamps · keep your streak going!')));
+    g.appendChild(el('div','goalrow','<span class="gicon">'+goldStars(1)+'</span> '+t('deliverEveryLetter')));
+    g.appendChild(el('div','goalrow','<span class="gicon" style="color:#e8559a">'+uiIcon('gift',16)+'</span> '+(dailyDone()?t('doneTodayStreak',{n:save.daily.streak}):t('keepStreakGoing'))));
     this.openModal('modal-intro');
   },
   openLevel(id){
     this.currentLevel=id; this.pendingOpts=null; const L=LEVELS[id-1];
-    const regionName = {1:'Cotton Village',2:'Rainbow Market',3:'Sleeping Moon Isles',4:'Storm Valley'}[L.region];
-    $('#intro-region').textContent = regionName + ' · Level '+id;
-    $('#intro-name').textContent = L.name + (L.boss? ' 👑':'');
-    $('#intro-obj').textContent = L.obj;
+    const region = REGIONS.find(r=>r.id===L.region);
+    $('#intro-region').textContent = pick(region.name) + ' · '+t('levelLabel')+id;
+    $('#intro-name').textContent = pick(L.name) + (L.boss? ' 👑':'');
+    $('#intro-obj').textContent = pick(L.obj);
     const g=$('#intro-goals'); g.innerHTML='';
-    g.appendChild(el('div','goalrow','<span class="gicon">'+goldStars(1)+'</span> Deliver every letter'));
-    g.appendChild(el('div','goalrow','<span class="gicon">'+goldStars(2)+'</span> Finish within '+(L.timeLimit?L.timeLimit+'s time limit':L.par+'s')));
-    g.appendChild(el('div','goalrow','<span class="gicon">'+goldStars(3)+'</span> '+((L.stamps&&L.stamps.length)?'Collect the golden stamp':'A perfect run: no bumps or wrong mail')));
-    const cn = L.courier==='mimo'?'Mimo (trial!)':'Poffy';
-    g.appendChild(el('div','goalrow','<span class="gicon" style="color:#45b4ff">'+uiIcon('cloud',16)+'</span> Courier: <b>'+cn+'</b>'));
+    g.appendChild(el('div','goalrow','<span class="gicon">'+goldStars(1)+'</span> '+t('deliverEveryLetter')));
+    g.appendChild(el('div','goalrow','<span class="gicon">'+goldStars(2)+'</span> '+(L.timeLimit?t('finishWithinTime',{n:L.timeLimit}):t('finishWithinPar',{n:L.par}))));
+    g.appendChild(el('div','goalrow','<span class="gicon">'+goldStars(3)+'</span> '+((L.stamps&&L.stamps.length)?t('collectGoldenStamp'):t('perfectRunDesc'))));
+    const cn = L.courier==='mimo'?t('mimoTrial'):'Poffy';
+    g.appendChild(el('div','goalrow','<span class="gicon" style="color:#45b4ff">'+uiIcon('cloud',16)+'</span> '+t('courierLabel')+'<b>'+cn+'</b>'));
     this.openModal('modal-intro');
   },
   startLevel(){ this.closeModal('modal-intro'); this.show('play'); game.load(this.currentLevel, this.pendingOpts||{}); },
   nextLevel(){ this.closeModal('modal-win'); const n=this.currentLevel+1;
-    if(n>40){ this.show('map'); toast('More regions coming soon!'); return; }
+    if(n>40){ this.show('map'); toast(t('moreRegionsSoon')); return; }
     this.openLevel(n); },
   replay(withHint){ this.closeModal('modal-win'); this.closeModal('modal-lose'); this.show('play'); game.load(this.currentLevel, this.pendingOpts||{}); if(withHint) setTimeout(()=>game.hint(),400); },
   openModal(id){ $('#'+id).classList.add('on'); },
@@ -69,10 +70,19 @@ export const ui = {
   },
   openSettings(){
     $('#sw-sfx').classList.toggle('on',save.sfx);
+    $('#lang-en').classList.toggle('active', lang()==='en');
+    $('#lang-tr').classList.toggle('active', lang()==='tr');
     const inGame=$('#screen-play').classList.contains('on');
     $('#btn-quit').style.display = inGame ? '' : 'none';
     if(inGame) game.setPaused(true);
     this.openModal('modal-settings');
+  },
+  setLanguage(code){
+    if(code===lang()) return;
+    setLang(code);
+    $('#lang-en').classList.toggle('active', code==='en');
+    $('#lang-tr').classList.toggle('active', code==='tr');
+    sfx.tap();
   },
   quitLevel(){
     this.closeModal('modal-settings');
@@ -117,9 +127,9 @@ export const ui = {
     if(cb) cb();
   },
   openCourierPicker(){
-    if(game.flying){ toast('No swapping mid-flight!'); return; }
+    if(game.flying){ toast(t('noSwapMidFlight')); return; }
     if(game.L && game.L.courier){
-      toast('This level flies with '+COURIER_STATS[game.L.courier].name+'!'); return;
+      toast(t('levelFliesWith',{name:COURIER_STATS[game.L.courier].name})); return;
     }
     const list=$('#courier-pick-list'); list.innerHTML='';
     COURIERS.forEach(c=>{
@@ -130,20 +140,20 @@ export const ui = {
       row.style.cursor=owned?'pointer':'default';
       row.innerHTML=`<div>${courierSVG(s.accent,54)}</div>
         <div class="cinfo"><div class="cname">${s.name}${active?' ✓':''}</div>
-        <div class="cdesc">${c.desc}</div>
-        <span class="badge ${owned?'':'lock'}">${owned?(active?'Flying now':'Tap to fly'):c.tag}</span></div>`;
+        <div class="cdesc">${pick(c.desc)}</div>
+        <span class="badge ${owned?'':'lock'}">${owned?(active?t('flyingNow'):t('tapToFly')):pick(c.tag)}</span></div>`;
       if(owned && !active) row.onclick=()=>{
         save.lastCourier=c.id; persist(); sfx.tap();
         this.closeModal('modal-courier');
         game.load(this.currentLevel, Object.assign({}, this.pendingOpts||{}, {courier:c.id}));
-        toast(s.name+' is ready to fly!');
+        toast(t('readyToFlyToast',{name:s.name}));
       };
       list.appendChild(row);
     });
     this.openModal('modal-courier');
   },
   toggleSfx(){ save.sfx=!save.sfx; persist(); $('#sw-sfx').classList.toggle('on',save.sfx); sfx.tap(); },
-  resetProgress(){ resetSave(); this.closeModal('modal-settings'); this.show('title'); toast('Progress reset. Fresh skies!'); },
+  resetProgress(){ resetSave(); this.closeModal('modal-settings'); this.show('title'); toast(t('progressReset')); },
   pendingStory:null,
   maybeStory(lv){
     const s=STORY.find(s=>s.lv===lv);
@@ -151,12 +161,23 @@ export const ui = {
   },
   showStoryIfAny(){
     if(this.pendingStory){ const s=this.pendingStory; this.pendingStory=null;
-      $('#story-content').innerHTML='<div class="from">'+s.from+'</div>'+s.text;
+      $('#story-content').innerHTML='<div class="from">'+pick(s.from)+'</div>'+pick(s.text);
       this.openModal('modal-story'); return true; }
     return false;
   },
   closeStory(){ this.closeModal('modal-story'); },
 };
+
+// refresh whichever plain data-driven screen is currently open when the language
+// changes, so labels update in place without losing scroll position / game state
+document.addEventListener('langchange', ()=>{
+  const cur = ui.stack[ui.stack.length-1];
+  if(cur==='map') renderMap();
+  else if(cur==='couriers') renderCouriers();
+  else if(cur==='collection') renderCollection();
+  else if(cur==='post') renderPost();
+  else if(cur==='play' && !game.flying && $('#btn-go')) $('#btn-go').textContent=t('readyToFly');
+});
 
 function renderMap(){
   $('#stamp-count').textContent=save.stamps;
@@ -165,22 +186,22 @@ function renderMap(){
   let y=8;
   // retention mock cards
   const ret=el('div','retention');
-  const dStatus = dailyDone() ? '✓ done · streak '+save.daily.streak
-                : (save.daily.streak ? 'play! · streak '+save.daily.streak : 'play today\'s route!');
-  const daily=el('button','ret-card',`<div class="big" style="color:#e8559a">${uiIcon('gift',26)}</div>Daily Delivery<div class="soon">${dStatus}</div>`);
+  const dStatus = dailyDone() ? t('doneStreak',{n:save.daily.streak})
+                : (save.daily.streak ? t('playStreak',{n:save.daily.streak}) : t('playToday'));
+  const daily=el('button','ret-card',`<div class="big" style="color:#e8559a">${uiIcon('gift',26)}</div>${t('dailyDeliveryCard')}<div class="soon">${dStatus}</div>`);
   daily.onclick=()=>ui.openDaily();
   ret.appendChild(daily);
-  ret.appendChild(el('div','ret-card',`<div class="big" style="color:#1b86d9">${uiIcon('book',26)}</div>Lost Letter Book<div class="soon">${Object.keys(save.letters).length}/${STORY.length} found</div>`));
-  ret.appendChild(el('div','ret-card',`<div class="big" style="color:#eda313">${uiIcon('tent',26)}</div>Sky Festival<div class="soon">seasonal · soon</div>`));
+  ret.appendChild(el('div','ret-card',`<div class="big" style="color:#1b86d9">${uiIcon('book',26)}</div>${t('lostLetterBook')}<div class="soon">${t('foundOf',{found:Object.keys(save.letters).length,total:STORY.length})}</div>`));
+  ret.appendChild(el('div','ret-card',`<div class="big" style="color:#eda313">${uiIcon('tent',26)}</div>${t('skyFestival')}<div class="soon">${t('seasonalSoon')}</div>`));
   inner.appendChild(ret); y+=104;
   const unlockedMax = maxUnlocked();
   for(const reg of REGIONS){
     const b=el('div','region-banner'+(reg.locked?' locked':''),
-      `<div class="rname"><span style="color:${reg.tint};vertical-align:-3px;display:inline-block;">${uiIcon(reg.icon,20)}</span> ${reg.name}</div><div class="rsub">${reg.sub}</div>`);
+      `<div class="rname"><span style="color:${reg.tint};vertical-align:-3px;display:inline-block;">${uiIcon(reg.icon,20)}</span> ${pick(reg.name)}</div><div class="rsub">${pick(reg.sub)}</div>`);
     b.style.cssText=`position:absolute; left:11%; width:78%; margin:0; top:${y}px;`;
     inner.appendChild(b); y+=84;
     if(reg.locked){
-      const fog=el('div','lockfog',`<span style="vertical-align:-2px;display:inline-block;color:#8d97ad;">${uiIcon('lock',14)}</span> covered in soft cloud fog`);
+      const fog=el('div','lockfog',`<span style="vertical-align:-2px;display:inline-block;color:#8d97ad;">${uiIcon('lock',14)}</span> ${t('coveredInFog')}`);
       fog.style.top=y+'px'; inner.appendChild(fog); y+=86; continue;
     }
     const ids = Array.from({length:10},(_,i)=>(reg.id-1)*10+i+1);
@@ -220,8 +241,8 @@ function renderCouriers(){
     const card=el('div','courier-card'+(owned?'':' locked'));
     card.innerHTML=`<div>${courierSVG(s.accent,72)}</div>
       <div class="cinfo"><div class="cname">${s.name}</div>
-      <div class="cdesc">${c.desc}</div>
-      <span class="badge ${owned?'':'lock'}">${owned?'In your post office!':c.tag}</span></div>`;
+      <div class="cdesc">${pick(c.desc)}</div>
+      <span class="badge ${owned?'':'lock'}">${owned?t('inYourPostOffice'):pick(c.tag)}</span></div>`;
     list.appendChild(card);
   });
 }
@@ -229,10 +250,10 @@ function renderCouriers(){
 function renderCollection(){
   const list=$('#collection-list'); list.innerHTML='';
   const found=Object.keys(save.letters).length;
-  list.appendChild(el('div','region-banner',`<div class="rname"><span style="color:#e8559a;vertical-align:-3px;display:inline-block;">${uiIcon('mail',18)}</span> ${found} / ${STORY.length} lost letters found</div><div class="rsub">Special letters unlock tiny stories</div>`));
+  list.appendChild(el('div','region-banner',`<div class="rname"><span style="color:#e8559a;vertical-align:-3px;display:inline-block;">${uiIcon('mail',18)}</span> ${t('lostLettersFound',{found,total:STORY.length})}</div><div class="rsub">${t('specialLettersUnlock')}</div>`));
   STORY.forEach(s=>{
-    if(save.letters[s.lv]) list.appendChild(el('div','storyletter',`<div class="from">${s.from} · found at level ${s.lv}</div>${s.text}`));
-    else list.appendChild(el('div','storyletter locked',`<span style="vertical-align:-2px;display:inline-block;">${uiIcon('lock',13)}</span> A lost letter waits at level ${s.lv}…`));
+    if(save.letters[s.lv]) list.appendChild(el('div','storyletter',`<div class="from">${pick(s.from)}${t('foundAtLevel',{lv:s.lv})}</div>${pick(s.text)}`));
+    else list.appendChild(el('div','storyletter locked',`<span style="vertical-align:-2px;display:inline-block;">${uiIcon('lock',13)}</span> ${t('waitsAtLevel',{lv:s.lv})}`));
   });
 }
 
@@ -246,11 +267,11 @@ function renderPost(){
   SHOP.forEach(it=>{
     const row=el('div','shopitem');
     const owned=save.bought[it.id];
-    row.innerHTML=`<div class="icon">${decoIcon(it.id,34)}</div><div class="name">${it.name}<small>cosmetic · no pay-to-win, ever</small></div>`;
-    const b=el('button','btn small '+(owned?'ghost':(save.stamps>=it.cost?'':'ghost')), owned?'Owned ✓':(stampRosette(15)+' '+it.cost));
+    row.innerHTML=`<div class="icon">${decoIcon(it.id,34)}</div><div class="name">${pick(it.name)}<small>${t('cosmeticNoPayToWin')}</small></div>`;
+    const b=el('button','btn small '+(owned?'ghost':(save.stamps>=it.cost?'':'ghost')), owned?t('owned'):(stampRosette(15)+' '+it.cost));
     b.onclick=()=>{ if(owned) return;
-      if(save.stamps>=it.cost){ save.stamps-=it.cost; save.bought[it.id]=1; persist(); sfx.stamp(); renderPost(); toast('Added to your post office!'); }
-      else toast('Earn more stamps by delivering mail!'); };
+      if(save.stamps>=it.cost){ save.stamps-=it.cost; save.bought[it.id]=1; persist(); sfx.stamp(); renderPost(); toast(t('addedToPostOffice')); }
+      else toast(t('earnMoreStamps')); };
     row.appendChild(b); list.appendChild(row);
   });
 }

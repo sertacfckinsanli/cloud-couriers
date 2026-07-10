@@ -11,9 +11,12 @@ import { sealIcon, sealChip, windArrow, chevronFlow, postOfficeIcon, gateDoors,
          stormCloud, balloonIcon, stampRosette, fogPuff, envelopeIcon,
          sparkStar, crossPuff, uiIcon, ghostArrow, moonGateIcon, lanternIcon, zapIcon } from './icons.js';
 import { solveLevel, adviseHint } from './solver.js';
+import { L, pick, t } from './i18n.js';
 
 const DIR2DEG = { u:0, r:90, d:180, l:270 };
-const DIRWORD = { u:'up', r:'right', d:'down', l:'left' };
+const DIR_KEY = { u:'dirUp', r:'dirRight', d:'dirDown', l:'dirLeft' };
+// mail-color names shown in gate/toast messages (engine.js COLORS.name stays English internally)
+const COLOR_NAMES = { b:L('blue','mavi'), p:L('pink','pembe'), y:L('yellow','sarı'), g:L('green','yeşil') };
 function mulberry32(seed){
   return function(){ seed|=0; seed=seed+0x6D2B79F5|0;
     let t=Math.imul(seed^seed>>>15, 1|seed);
@@ -62,12 +65,12 @@ export const game = {
     $('#screen-play').classList.toggle('storm', this.L.region===4);
     $('#phone').classList.toggle('storm', this.L.region===4);
     this.seesHidden = !!this.stats.seesHidden;
-    $('#hud-level').textContent='Lv '+id;
-    $('#hud-timer').textContent=this.L.timeLimit? this.L.timeLimit+'s' : '0s';
+    $('#hud-level').textContent=t('lvLabel')+id;
+    $('#hud-timer').textContent=this.L.timeLimit? this.L.timeLimit+t('secUnit') : '0'+t('secUnit');
     $('#hud-timer').classList.toggle('limit', !!this.L.timeLimit);
     $('#char-chip').innerHTML = courierSVG(this.stats.accent,34)+' '+this.stats.name
       + (this.L.courier ? '' : ' <span class="swapmark">'+uiIcon('restart',11)+'</span>');
-    const go=$('#btn-go'); go.textContent='Ready to fly?'; go.classList.remove('flying');
+    const go=$('#btn-go'); go.textContent=t('readyToFly'); go.classList.remove('flying');
     this.buildBoard();
     this.renderObjectives();
     this.startMoverIdle();
@@ -347,7 +350,7 @@ export const game = {
     this.flying=true; this.st.status='flying'; sfx.go(); this.jolt('stretch');
     this._lastXY=this.cellXY(this.st.r,this.st.c);
     const gl=document.getElementById('ghostlayer'); if(gl) gl.innerHTML='';
-    const goB=$('#btn-go'); goB.textContent='Flying! ☁️'; goB.classList.add('flying');
+    const goB=$('#btn-go'); goB.textContent=t('flyingNowHud'); goB.classList.add('flying');
     document.querySelectorAll('.bubble').forEach(b=>b.remove());
     this.t0=Date.now();
     this.timer=setInterval(()=>{
@@ -355,9 +358,9 @@ export const game = {
       this.elapsed=(Date.now()-this.t0)/1000;
       if(this.L.timeLimit){
         const left=Math.max(0,this.L.timeLimit-this.elapsed);
-        $('#hud-timer').textContent=Math.ceil(left)+'s';
+        $('#hud-timer').textContent=Math.ceil(left)+t('secUnit');
         if(left<=0){ this.finishLose('timeup'); }
-      } else $('#hud-timer').textContent=Math.floor(this.elapsed)+'s';
+      } else $('#hud-timer').textContent=Math.floor(this.elapsed)+t('secUnit');
     },200);
     this.loop();
   },
@@ -407,7 +410,7 @@ export const game = {
       const tile=document.querySelector(`.tile[data-key="${e.key}"]`);
       if(tile){ tile.classList.add('lit'); setTimeout(()=>tile.classList.remove('lit'),700); }
       this.markDelivered(e.color);
-      toast('Mail delivered! '+sealChip(e.color,15,COLORS));
+      toast(t('mailDeliveredToast')+sealChip(e.color,15,COLORS));
       // fog boss: lift fog when bridge requirement reached
       if(this.L.fogRows && this.st.deliveredCount>=2){ const f=$('#fogbox'); if(f) f.classList.add('gone'); }
       // bridges visual
@@ -416,22 +419,22 @@ export const game = {
         if(this.st.deliveredCount>=t.needs) b.classList.add('active');
       });
     }
-    if(e.t==='reject'){ sfx.bump(); this.jolt('squash'); this.spark(e.key, crossPuff(20)); toast('Oops, wrong mailbox!'); }
+    if(e.t==='reject'){ sfx.bump(); this.jolt('squash'); this.spark(e.key, crossPuff(20)); toast(t('wrongMailbox')); }
     if(e.t==='bounceGate'){ sfx.bump(); this.jolt('squash'); this.shakeBoard(true); this.spark(e.key, e.color?sealChip(e.color,18,COLORS):crossPuff(20));
-      if(e.moon) toast('The moon gate is closed — wait for the glow!');
-      else if(!e.color) toast('The gate was closed! Tap it!');
-      else toast('This gate only accepts '+COLORS[e.color].name+' mail!'); }
+      if(e.moon) toast(t('moonGateClosed'));
+      else if(!e.color) toast(t('gateClosedTap'));
+      else toast(t('gateOnlyAccepts',{color:pick(COLOR_NAMES[e.color])})); }
     if(e.t==='light'){
       sfx.stamp(); this.spark(this.st.r+','+this.st.c, sparkStar(22,'#ffe9a8'));
       document.querySelectorAll('.tile.hiddenpath').forEach(d=>d.classList.add('revealed'));
       document.querySelectorAll('.tile.switch .lantern').forEach(l=>l.innerHTML=lanternIcon(Math.round(this.TS*0.62), true));
-      toast('The lantern lights the hidden paths!');
+      toast(t('lanternLights'));
     }
     if(e.t==='bump'){ sfx.bump(); this.jolt('squash'); this.shakeBoard(true); this.spark(this.st.r+','+this.st.c, sparkStar(20, e.shield?'#7fe8a8':'#ff8a9e'));
-      toast(e.shield ? (e.zap ? 'Lulu shrugged off the lightning!' : 'Lulu puffed right through the storm!')
-        : e.zap ? 'Zap! The lightning pushed '+this.stats.name+' back!'
-        : e.storm ? 'The grumpy cloud shoved '+this.stats.name+' back!'
-        : 'Bumped by a balloon!'); }
+      toast(e.shield ? (e.zap ? t('luluShruggedZap') : t('luluPuffedStorm'))
+        : e.zap ? t('zapPushedBack',{name:this.stats.name})
+        : e.storm ? t('stormShoved',{name:this.stats.name})
+        : t('bumpedBalloon')); }
     if(e.t==='bounceHome'){ sfx.tap(); this.jolt('squash'); }
     if(e.t==='win'){ this.finishWin(); }
     if(e.t==='lose'){ this.finishLose(e.reason); }
@@ -464,8 +467,8 @@ export const game = {
       if(save.daily.last!==today){
         save.daily.streak = (save.daily.last===dailyKey(-1)) ? save.daily.streak+1 : 1;
         save.daily.last=today; reward=2; save.stamps+=reward; persist();
-        rewardText=`+${reward} stamps · daily streak ${save.daily.streak} `;
-      } else rewardText=`Daily streak ${save.daily.streak} · come back tomorrow `;
+        rewardText=t('dailyReward',{n:reward, streak:save.daily.streak});
+      } else rewardText=t('dailyComeBack',{streak:save.daily.streak});
     } else {
       const prev=save.stars[id]||0;
       if(prev===0){ reward+=3; }
@@ -473,17 +476,18 @@ export const game = {
       if(reward) save.stamps+=reward;
       save.stars[id]=Math.max(prev,stars); persist();
       ui.maybeStory(id);
-      rewardText = reward? `+${reward} postal stamps ` : 'Stamps already earned ';
+      rewardText = reward? t('rewardStamps',{n:reward}) : t('stampsAlready');
       const uc=COURIER_UNLOCKS[id];
       if(uc && !save.couriers[uc]){
         save.couriers[uc]=1; persist();
         const s=COURIER_STATS[uc];
-        setTimeout(()=>toast(courierSVG(s.accent,20)+' '+s.name+' joined your post office!'), 1400);
+        setTimeout(()=>toast(courierSVG(s.accent,20)+' '+t('courierJoined',{name:s.name})), 1400);
       }
     }
     // modal
-    $('#win-title').textContent = this.daily?'Daily Delivered!':(stars===3?'Perfect Delivery!':'Mail Delivered!');
-    $('#win-msg').textContent = `Finished in ${time.toFixed(1)}s · ${this.st.mistakes===0?'no mistakes!':this.st.mistakes+' little bump'+(this.st.mistakes>1?'s':'')}` + (wantStamps? ` · stamps ${gotStamps}/${wantStamps}`:'');
+    $('#win-title').textContent = this.daily?t('dailyDelivered'):(stars===3?t('perfectDelivery'):t('mailDelivered'));
+    const mistakesText = this.st.mistakes===0 ? t('noMistakes') : (this.st.mistakes>1 ? t('nBumps',{n:this.st.mistakes}) : t('oneBump'));
+    $('#win-msg').textContent = t('finishedIn',{time:time.toFixed(1)}) + ' · ' + mistakesText + (wantStamps? t('stampsCount',{got:gotStamps,want:wantStamps}):'');
     $('#win-stamps').innerHTML = rewardText + stampRosette(16);
     $('#btn-next').style.display = (this.daily || id>=40)?'none':'';
     const row=$('#win-stars'); row.innerHTML='';
@@ -516,12 +520,12 @@ export const game = {
     const leanEl=document.querySelector('#courier .lean'); if(leanEl) leanEl.style.rotate='0deg';
     $('#courier').classList.add('dizzy');
     const msgs={
-      drift:'Poffy drifted into open sky! Check where each breeze points.',
-      storm:'A grumpy storm cloud caught Poffy! Try different timing.',
-      bridge:'The rainbow bridge wasn\'t there yet. Deliver a letter first!',
-      tired:'Poffy flew in circles and got sleepy. Turn a breeze to break the loop!',
-      timeup:'Time\'s up! The mail was urgent. Try a faster route.',
-      zap:'Lightning caught '+this.stats.name+'! Watch the rhythm — cross while it rests.',
+      drift:t('loseDrift'),
+      storm:t('loseStorm'),
+      bridge:t('loseBridge'),
+      tired:t('loseTired'),
+      timeup:t('loseTimeup'),
+      zap:t('loseZap',{name:this.stats.name}),
     };
     const accent=this.stats.accent;
     const faces={
@@ -530,7 +534,7 @@ export const game = {
       timeup: '<span style="color:#e8559a">'+uiIcon('clock',72)+'</span>',
     };
     $('#lose-face').innerHTML=faces[reason]||courierSVG(accent,96,'dizzy');
-    $('#lose-msg').textContent=msgs[reason]||'One more breeze?';
+    $('#lose-msg').textContent=msgs[reason]||t('loseDefault');
     setTimeout(()=>{ $('#courier').classList.remove('dizzy'); ui.openModal('modal-lose'); },900);
   },
 
@@ -551,10 +555,10 @@ export const game = {
       advice = adviseHint(this._solution, this.arrows);
     }
     let key=null, text=null;
-    if(advice && advice.fix){ key=advice.fix.key; text='Point this breeze '+DIRWORD[advice.fix.dir]+' '+dirGlyph(advice.fix.dir); }
-    else if(advice && advice.live){ key=advice.live.key; text='While flying, turn this breeze '+DIRWORD[advice.live.dir]+' '+dirGlyph(advice.live.dir); }
-    else if(advice && advice.ready){ key='go'; text='The breezes look ready. Press Start!'; }
-    else if(this.L.hint){ key=this.L.hint.cell; text=this.L.hint.text; }
+    if(advice && advice.fix){ key=advice.fix.key; text=t('hintPointBreeze',{dir:t(DIR_KEY[advice.fix.dir])})+dirGlyph(advice.fix.dir); }
+    else if(advice && advice.live){ key=advice.live.key; text=t('hintTurnWhileFlying',{dir:t(DIR_KEY[advice.live.dir])})+dirGlyph(advice.live.dir); }
+    else if(advice && advice.ready){ key='go'; text=t('hintReady'); }
+    else if(this.L.hint){ key=this.L.hint.cell; text=pick(this.L.hint.text); }
     if(!key) return;
     if(key!=='go'){
       const tile=document.querySelector(`.tile[data-key="${key}"]`);
@@ -580,8 +584,8 @@ export const game = {
     if(ttl) setTimeout(()=>bub.remove(),ttl);
   },
   showTutorial(){
-    const t=this.L.tutorial; if(!t||!t.length||save.stars[this.L.id]) { this.tut=null; return; }
-    this.tut=t; this.tutIdx=0; this.showTutStep();
+    const tut=this.L.tutorial; if(!tut||!tut.length||save.stars[this.L.id]) { this.tut=null; return; }
+    this.tut=tut; this.tutIdx=0; this.showTutStep();
   },
   showTutStep(){
     if(!this.tut||this.tutIdx>=this.tut.length) return;
@@ -590,7 +594,7 @@ export const game = {
       const tile=document.querySelector(`.tile[data-key="${step.cell}"]`);
       if(tile) tile.classList.add('hinted');
     }
-    this.bubbleAt(step.cell, step.text);
+    this.bubbleAt(step.cell, pick(step.text));
   },
   dismissTutorialFor(k){
     if(!this.tut) return;

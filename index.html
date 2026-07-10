@@ -22,16 +22,16 @@
   <div class="screen on" id="screen-title">
     <div id="logo">
       <h1>Cloud<br>Couriers</h1>
-      <span class="sub">The Lost Letter Kingdom</span>
+      <span class="sub" data-i18n="subtitle">The Lost Letter Kingdom</span>
     </div>
     <div id="title-poffy"></div>
     <div id="title-menu">
-      <button class="btn" onclick="ui.play()"><span data-icon="play" data-size="18"></span> Play</button>
-      <button class="btn blue small" onclick="ui.show('couriers')"><span data-icon="cloud" data-size="18"></span> Couriers</button>
-      <button class="btn ghost small" onclick="ui.show('collection')"><span data-icon="mail" data-size="18"></span> Collection</button>
-      <button class="btn ghost small" onclick="ui.openSettings()"><span data-icon="gear" data-size="18"></span> Settings</button>
+      <button class="btn" onclick="ui.play()"><span data-icon="play" data-size="18"></span> <span data-i18n="play">Play</span></button>
+      <button class="btn blue small" onclick="ui.show('couriers')"><span data-icon="cloud" data-size="18"></span> <span data-i18n="navCouriers">Couriers</span></button>
+      <button class="btn ghost small" onclick="ui.show('collection')"><span data-icon="mail" data-size="18"></span> <span data-i18n="navCollection">Collection</span></button>
+      <button class="btn ghost small" onclick="ui.openSettings()"><span data-icon="gear" data-size="18"></span> <span data-i18n="navSettings">Settings</span></button>
     </div>
-    <div class="title-foot">♪ cozy ukulele music placeholder ♪<br>prototype v1</div>
+    <div class="title-foot" data-i18n="footPrototype">♪ cozy ukulele music placeholder ♪<br>prototype v1</div>
   </div>
 
   <!-- WORLD MAP -->
@@ -43,30 +43,30 @@
     </div>
     <div id="map-scroll"><div id="map-inner"></div></div>
     <div id="map-tabs">
-      <button class="tab active"><span class="ticon" data-icon="map" data-size="22"></span>Map</button>
-      <button class="tab" onclick="ui.show('couriers')"><span class="ticon" data-icon="cloud" data-size="22"></span>Couriers</button>
-      <button class="tab" onclick="ui.show('collection')"><span class="ticon" data-icon="mail" data-size="22"></span>Letters</button>
-      <button class="tab" onclick="ui.show('postmap')"><span class="ticon" data-icon="post" data-size="22"></span>Post Office</button>
+      <button class="tab active"><span class="ticon" data-icon="map" data-size="22"></span><span data-i18n="navMap">Map</span></button>
+      <button class="tab" onclick="ui.show('couriers')"><span class="ticon" data-icon="cloud" data-size="22"></span><span data-i18n="navCouriers">Couriers</span></button>
+      <button class="tab" onclick="ui.show('collection')"><span class="ticon" data-icon="mail" data-size="22"></span><span data-i18n="navLetters">Letters</span></button>
+      <button class="tab" onclick="ui.show('postmap')"><span class="ticon" data-icon="post" data-size="22"></span><span data-i18n="navPostOffice">Post Office</span></button>
     </div>
   </div>
 
   <!-- COURIERS -->
   <div class="screen" id="screen-couriers">
-    <div class="sub-head"><button class="iconbtn" onclick="ui.back()"><span data-icon="back" data-size="20"></span></button><h2>Cloud Couriers</h2></div>
+    <div class="sub-head"><button class="iconbtn" onclick="ui.back()"><span data-icon="back" data-size="20"></span></button><h2 data-i18n="couriersHeading">Cloud Couriers</h2></div>
     <div class="sub-body" id="courier-list"></div>
   </div>
 
   <!-- COLLECTION -->
   <div class="screen" id="screen-collection">
-    <div class="sub-head"><button class="iconbtn" onclick="ui.back()"><span data-icon="back" data-size="20"></span></button><h2>Lost Letter Book</h2></div>
+    <div class="sub-head"><button class="iconbtn" onclick="ui.back()"><span data-icon="back" data-size="20"></span></button><h2 data-i18n="collectionHeading">Lost Letter Book</h2></div>
     <div class="sub-body" id="collection-list"></div>
   </div>
 
   <!-- POST OFFICE -->
   <div class="screen" id="screen-post">
-    <div class="sub-head"><button class="iconbtn" onclick="ui.back()"><span data-icon="back" data-size="20"></span></button><h2>Post Office</h2><div class="pill" style="margin-left:auto;"><span data-icon="stamp" data-size="20"></span> <span id="stamp-count2">0</span></div></div>
+    <div class="sub-head"><button class="iconbtn" onclick="ui.back()"><span data-icon="back" data-size="20"></span></button><h2 data-i18n="postHeading">Post Office</h2><div class="pill" style="margin-left:auto;"><span data-icon="stamp" data-size="20"></span> <span id="stamp-count2">0</span></div></div>
     <div class="sub-body">
-      <div id="postoffice-art"><div class="po-house" data-icon="postoffice" data-size="96"></div><div style="font-size:12px;color:var(--ink-soft);font-weight:700;">Poffy's cozy post office</div></div>
+      <div id="postoffice-art"><div class="po-house" data-icon="postoffice" data-size="96"></div><div style="font-size:12px;color:var(--ink-soft);font-weight:700;" data-i18n="poffyCozyPost">Poffy's cozy post office</div></div>
       <div id="shop-list"></div>
     </div>
   </div>
@@ -88,7 +88,7 @@
     <div id="board-wrap"><div id="board"></div></div>
     <div id="hud-bottom">
       <button id="char-chip" onclick="ui.openCourierPicker()"></button>
-      <button class="btn" id="btn-go" onclick="game.go()">Ready to fly?</button>
+      <button class="btn" id="btn-go" onclick="game.go()" data-i18n="readyToFly">Ready to fly?</button>
       <button class="iconbtn" onclick="game.hint()"><span data-icon="bulb" data-size="22"></span></button>
     </div>
   </div>
@@ -101,8 +101,8 @@
       <div class="msub" id="intro-obj"></div>
       <div id="intro-goals"></div>
       <div class="btncol">
-        <button class="btn" onclick="ui.startLevel()">Let's fly! <span data-icon="cloud" data-size="18"></span></button>
-        <button class="btn ghost small" onclick="ui.closeModal('modal-intro'); ui.show('map')">Back to map</button>
+        <button class="btn" onclick="ui.startLevel()"><span data-i18n="letsFly">Let's fly! </span><span data-icon="cloud" data-size="18"></span></button>
+        <button class="btn ghost small" onclick="ui.closeModal('modal-intro'); ui.show('map')" data-i18n="backToMap">Back to map</button>
       </div>
     </div>
   </div>
@@ -110,14 +110,14 @@
   <div class="modal-back" id="modal-win">
     <div id="winburst"></div>
     <div class="modal">
-      <h3 id="win-title">Mail Delivered!</h3>
+      <h3 id="win-title" data-i18n="mailDelivered">Mail Delivered!</h3>
       <div class="starrow" id="win-stars"></div>
       <div class="msub" id="win-msg"></div>
       <div class="stampreward" id="win-stamps"></div>
       <div class="btncol">
-        <button class="btn" id="btn-next" onclick="ui.nextLevel()">Next Level <span data-icon="next" data-size="17"></span></button>
-        <button class="btn blue small" onclick="ui.replay()"><span data-icon="restart" data-size="15"></span> Replay</button>
-        <button class="btn ghost small" onclick="ui.closeModal('modal-win'); ui.show('map')">Map</button>
+        <button class="btn" id="btn-next" onclick="ui.nextLevel()"><span data-i18n="nextLevelBtn">Next Level </span><span data-icon="next" data-size="17"></span></button>
+        <button class="btn blue small" onclick="ui.replay()"><span data-icon="restart" data-size="15"></span> <span data-i18n="replayBtn">Replay</span></button>
+        <button class="btn ghost small" onclick="ui.closeModal('modal-win'); ui.show('map')" data-i18n="mapBtn">Map</button>
       </div>
     </div>
   </div>
@@ -125,25 +125,31 @@
   <div class="modal-back" id="modal-lose">
     <div class="modal">
       <div id="lose-face"></div>
-      <h3>The wind got tricky!</h3>
+      <h3 data-i18n="windTricky">The wind got tricky!</h3>
       <div class="msub" id="lose-msg"></div>
       <div class="btncol">
-        <button class="btn" onclick="ui.replay()">Try Again</button>
-        <button class="btn blue small" onclick="ui.replay(true)"><span data-icon="bulb" data-size="15"></span> Retry with Hint</button>
-        <button class="btn ghost small" onclick="ui.closeModal('modal-lose'); ui.show('map')">Map</button>
+        <button class="btn" onclick="ui.replay()" data-i18n="tryAgain">Try Again</button>
+        <button class="btn blue small" onclick="ui.replay(true)"><span data-icon="bulb" data-size="15"></span> <span data-i18n="retryWithHint">Retry with Hint</span></button>
+        <button class="btn ghost small" onclick="ui.closeModal('modal-lose'); ui.show('map')" data-i18n="mapBtn">Map</button>
       </div>
     </div>
   </div>
 
   <div class="modal-back" id="modal-settings">
     <div class="modal">
-      <h3>Settings</h3>
-      <div class="settings-row"><span><span data-icon="bell" data-size="16"></span> Sound effects</span><div class="toggle on" id="sw-sfx" onclick="ui.toggleSfx()"></div></div>
-      <div class="settings-row"><span><span data-icon="music" data-size="16"></span> Music</span><span class="badge lock">coming soon</span></div>
-      <div class="settings-row"><span><span data-icon="trash" data-size="16"></span> Reset progress</span><button class="btn ghost small" onclick="ui.resetProgress()">Reset</button></div>
+      <h3 data-i18n="settingsTitle">Settings</h3>
+      <div class="settings-row"><span><span data-icon="bell" data-size="16"></span> <span data-i18n="soundEffects">Sound effects</span></span><div class="toggle on" id="sw-sfx" onclick="ui.toggleSfx()"></div></div>
+      <div class="settings-row"><span><span data-icon="music" data-size="16"></span> <span data-i18n="musicLabel">Music</span></span><span class="badge lock" data-i18n="comingSoon">coming soon</span></div>
+      <div class="settings-row"><span>🌐 <span data-i18n="language">Language</span></span>
+        <div class="langswitch">
+          <button class="langbtn" id="lang-en" onclick="ui.setLanguage('en')">EN</button>
+          <button class="langbtn" id="lang-tr" onclick="ui.setLanguage('tr')">TR</button>
+        </div>
+      </div>
+      <div class="settings-row"><span><span data-icon="trash" data-size="16"></span> <span data-i18n="resetProgressLabel">Reset progress</span></span><button class="btn ghost small" onclick="ui.resetProgress()" data-i18n="resetBtn">Reset</button></div>
       <div class="btncol">
-        <button class="btn" onclick="ui.closeModal('modal-settings')">Keep playing</button>
-        <button class="btn blue small" id="btn-quit" style="display:none;" onclick="ui.quitLevel()"><span data-icon="map" data-size="15"></span> Back to map</button>
+        <button class="btn" onclick="ui.closeModal('modal-settings')" data-i18n="keepPlaying">Keep playing</button>
+        <button class="btn blue small" id="btn-quit" style="display:none;" onclick="ui.quitLevel()"><span data-icon="map" data-size="15"></span> <span data-i18n="backToMap">Back to map</span></button>
       </div>
     </div>
   </div>
@@ -155,30 +161,30 @@
         <video id="ad-video" src="ads/ad.mp4" playsinline loop preload="auto"></video>
         <div class="ad-fallback" id="ad-fallback">
           <div class="ad-fb-badge">AD</div>
-          <div class="ad-fb-title">Your Ad Here</div>
-          <div class="ad-fb-sub">Drop a video in the <code>ads/</code> folder<br>as <code>ad.mp4</code> to play it here</div>
+          <div class="ad-fb-title" data-i18n="adYourAdHere">Your Ad Here</div>
+          <div class="ad-fb-sub" data-i18n="adDropVideo">Drop a video in the <code>ads/</code> folder<br>as <code>ad.mp4</code> to play it here</div>
           <div class="ad-fb-shine"></div>
         </div>
       </div>
-      <div class="ad-caption"><span class="ad-dot"></span> Rewarded Ad · watch to earn your hint</div>
+      <div class="ad-caption"><span class="ad-dot"></span> <span data-i18n="adCaption">Rewarded Ad · watch to earn your hint</span></div>
     </div>
   </div>
 
   <div class="modal-back" id="modal-courier">
     <div class="modal">
-      <h3>Pick your courier</h3>
-      <div class="msub">Each cloud flies its own way</div>
+      <h3 data-i18n="pickCourier">Pick your courier</h3>
+      <div class="msub" data-i18n="eachCloud">Each cloud flies its own way</div>
       <div id="courier-pick-list" style="max-height:52vh;overflow-y:auto;text-align:left;"></div>
-      <div class="btncol"><button class="btn ghost small" onclick="ui.closeModal('modal-courier')">Close</button></div>
+      <div class="btncol"><button class="btn ghost small" onclick="ui.closeModal('modal-courier')" data-i18n="close">Close</button></div>
     </div>
   </div>
 
   <div class="modal-back" id="modal-story">
     <div class="modal">
       <div data-icon="envelope" data-size="60" style="display:flex;justify-content:center;"></div>
-      <h3>Lost letter found!</h3>
+      <h3 data-i18n="lostLetterFound">Lost letter found!</h3>
       <div class="storyletter" id="story-content"></div>
-      <div class="btncol"><button class="btn" onclick="ui.closeStory()">Keep it safe</button></div>
+      <div class="btncol"><button class="btn" onclick="ui.closeStory()" data-i18n="keepItSafe">Keep it safe</button></div>
     </div>
   </div>
 </div>

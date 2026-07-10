@@ -1,10 +1,13 @@
 // ---------- persistence ----------
 const SAVE_KEY = 'cloudCouriers_v1';
 
+const detectLang = () => (typeof navigator!=='undefined' && /^tr/i.test(navigator.language||'')) ? 'tr' : 'en';
+
 export const save = { stars:{}, stamps:0, bought:{}, letters:{}, sfx:true,
   daily:{ last:'', streak:0 }, couriers:{ poffy:1 }, lastCourier:'poffy',
-  rooms:{}, metaWelcome:0 };
+  rooms:{}, metaWelcome:0, lang: detectLang() };
 try{ const s = localStorage.getItem(SAVE_KEY); if(s) Object.assign(save, JSON.parse(s)); }catch(e){}
+if(save.lang!=='en' && save.lang!=='tr') save.lang = detectLang();
 if(!save.daily) save.daily = { last:'', streak:0 };
 if(!save.couriers) save.couriers = { poffy:1 };
 if(!save.lastCourier) save.lastCourier = 'poffy';
