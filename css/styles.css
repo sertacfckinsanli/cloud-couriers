@@ -562,3 +562,11 @@ button{font-family:var(--font); border:none; cursor:pointer; color:var(--ink);}
 #pm-pop-buy{width:100%; margin-top:2px;}
 #pm-pop-buy[disabled]{filter:grayscale(.6); opacity:.6; box-shadow:0 4px 0 #b9b2cc;}
 #pm-pop-cancel{display:block; margin:12px auto 0; background:none; color:var(--ink-soft); font-weight:700; font-size:13px;}
+/* variant chooser: 3 design options */
+.pm-choices{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px;}
+.pm-choice{display:flex; flex-direction:column; align-items:center; gap:6px; padding:8px 8px 10px; background:#fff; border:2px solid transparent; border-radius:16px; cursor:pointer; box-shadow:0 4px 12px rgba(90,120,170,.12); transition:transform .12s, border-color .12s, box-shadow .12s;}
+.pm-choice:hover{transform:translateY(-2px); border-color:var(--yellow); box-shadow:0 8px 18px rgba(90,120,170,.22);}
+.pm-choice:active{transform:scale(.97);}
+.pm-choice[disabled]{filter:grayscale(.5); opacity:.55; cursor:default;}
+.pm-choice-thumb{width:100%; aspect-ratio:11/7; border-radius:10px; background-color:#e9e2d0; background-size:cover; background-position:center; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
+.pm-choice-lbl{font-weight:800; font-size:13px; color:var(--ink);}

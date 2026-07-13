@@ -1,13 +1,13 @@
 // Cloud Couriers service worker — network-first with cache fallback.
 // Fresh files whenever online (no stale-module version skew), full offline play otherwise.
-const VERSION = 'cloud-couriers-v5';
+const VERSION = 'cloud-couriers-v6';
 const CORE = [
   '.', 'index.html',
   'css/font.css', 'css/styles.css',
   'js/main.js', 'js/ui.js', 'js/game.js', 'js/engine.js', 'js/levels.js',
   'js/solver.js', 'js/icons.js', 'js/svg.js', 'js/data.js', 'js/save.js',
   'js/audio.js', 'js/dom.js', 'js/ambient.js',
-  'js/i18n.js', 'js/postmap.js', 'js/roomart.js', 'js/characters.js', 'js/music.js',
+  'js/i18n.js', 'js/postmap.js', 'js/roomart.js', 'js/characters.js', 'js/music.js', 'js/lobbyart.js',
   'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
   // audio/*.mp3 are runtime-cached on first play (not precached — keeps install light)
 ];

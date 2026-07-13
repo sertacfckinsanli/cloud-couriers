@@ -9,6 +9,7 @@ import { sfx } from './audio.js';
 import { ROOM_STAGES } from './roomart.js';
 import { CHARS } from './characters.js';
 import { L, pick, t } from './i18n.js';
+import { LOBBY_BASE, LOBBY_VARS, LOBBY_BOXES, LOBBY_ORDER, LOBBY_VARKEYS } from './lobbyart.js';
 
 const ROOMS = [
   { id:'garden', name:L('Garden','Bahçe'), tasks:[
@@ -18,12 +19,10 @@ const ROOMS = [
     { id:'flowers',  title:L('Plant the beds & add a bench','Çiçekleri dik & bank ekle'), icon:'🌷', cost:5 },
     { id:'cleanup',  title:L('Final cleanup','Son temizlik'),                          icon:'✨', cost:4 },
   ] },
-  { id:'lobby', name:L('Lobby','Lobi'), tasks:[
+  { id:'lobby', name:L('Lobby','Lobi'), variant:true, tasks:[
     { id:'mailwall', title:L('Restore the mail wall','Mektup duvarını onar'),          icon:'📬', cost:5 },
     { id:'counter',  title:L('Build the reception counter','Resepsiyon tezgahını kur'),icon:'🗄️', cost:5 },
     { id:'lounge',   title:L('Furnish the waiting lounge','Bekleme köşesini döşe'),     icon:'🛋️', cost:5 },
-    { id:'windows',  title:L('Fix the windows & lighting','Pencere & aydınlatmayı düzelt'), icon:'🪟', cost:4 },
-    { id:'cleanup',  title:L('Final cleanup','Son temizlik'),                          icon:'✨', cost:4 },
   ] },
   { id:'sorting', name:L('Sorting Room','Ayrım Odası'), tasks:[
     { id:'bureau',   title:L('Set up the sorting desk','Ayrım masasını kur'),          icon:'🗂️', cost:6 },
@@ -360,18 +359,69 @@ function roomRec(id){
   if(!r) r=s[id]={stage:0,seen:{}};
   if(typeof r.stage!=='number') r.stage = r.done ? 99 : 0;
   if(!r.seen) r.seen={};
+  if(!r.choices) r.choices={};
   return r;
 }
-function doneCount(r){ return Math.min(roomRec(r.id).stage, r.tasks.length); }
+function doneCount(r){
+  if(r.variant) return LOBBY_ORDER.filter(id=>roomRec(r.id).choices[id]).length;
+  return Math.min(roomRec(r.id).stage, r.tasks.length);
+}
 function roomComplete(r){ return doneCount(r) >= r.tasks.length; }
-function nextTask(r){ const d=doneCount(r); return d<r.tasks.length ? r.tasks[d] : null; }
+function nextTask(r){
+  if(r.variant){ const rec=roomRec(r.id); const id=LOBBY_ORDER.find(k=>!rec.choices[k]); return id?r.tasks.find(tk=>tk.id===id):null; }
+  const d=doneCount(r); return d<r.tasks.length ? r.tasks[d] : null;
+}
 function stageImg(r,k){ const a=ROOM_STAGES[r.id]; return a[Math.max(0,Math.min(k===undefined?doneCount(r):k, a.length-1))]; }
 function activeIdx(){ for(let i=0;i<ORDER.length;i++){ if(!roomComplete(roomById(ORDER[i]))) return i; } return ORDER.length; }
 function roomState(r){ if(roomComplete(r)) return 'done'; return ORDER.indexOf(r.id)===activeIdx()?'active':'locked'; }
 
 // ---------- DOM ----------
 let built=false, els={}, currentRoomId=null, rotated=false;
-function paintRoom(elm,r){ elm.style.backgroundImage=`url(${stageImg(r)})`; }
+
+// ---------- variant rooms (lobby): base + per-item chosen layers, composited live ----------
+const VARLABEL = { classic:L('Classic','Klasik'), rustic:L('Rustic','Rustik'), deco:L('Deco','Deco') };
+let _lobImgs=null, _lobReady=null; const _lobCache={};
+function preloadLobby(){
+  if(_lobReady) return _lobReady;
+  const srcs={ base:LOBBY_BASE };
+  for(const it of LOBBY_ORDER) for(const v of LOBBY_VARKEYS) srcs[it+'_'+v]=LOBBY_VARS[it][v];
+  _lobImgs={};
+  _lobReady=Promise.all(Object.entries(srcs).map(([k,src])=>new Promise(res=>{
+    const im=new Image(); im.onload=()=>{_lobImgs[k]=im;res();}; im.onerror=()=>res(); im.src=src;
+  })));
+  return _lobReady;
+}
+function roundRectPath(ctx,x,y,w,h,r){ r=Math.max(0,Math.min(r,w/2,h/2)); ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function lobbyURL(choices){
+  if(!_lobImgs||!_lobImgs.base) return LOBBY_BASE;
+  const sig=LOBBY_ORDER.map(id=>id+':'+(choices[id]||'')).join('|');
+  if(_lobCache[sig]) return _lobCache[sig];
+  const W=_lobImgs.base.naturalWidth||1264, H=_lobImgs.base.naturalHeight||542;
+  const c=document.createElement('canvas'); c.width=W; c.height=H; const ctx=c.getContext('2d');
+  ctx.drawImage(_lobImgs.base,0,0,W,H);
+  for(const id of LOBBY_ORDER){ const v=choices[id]; if(!v) continue; const img=_lobImgs[id+'_'+v]; if(!img) continue;
+    const b=LOBBY_BOXES[id]; const bx=b.x/100*W, by=b.y/100*H, bw=b.w/100*W, bh=b.h/100*H;
+    const oc=document.createElement('canvas'); oc.width=W; oc.height=H; const octx=oc.getContext('2d');
+    octx.drawImage(img,0,0,W,H);
+    octx.globalCompositeOperation='destination-in';
+    const fr=Math.max(5,Math.min(bw,bh)*0.09); octx.filter=`blur(${fr}px)`; octx.fillStyle='#fff';
+    roundRectPath(octx,bx+fr,by+fr,bw-2*fr,bh-2*fr,fr*1.4); octx.fill();
+    octx.filter='none'; octx.globalCompositeOperation='source-over';
+    ctx.drawImage(oc,0,0);
+  }
+  const url=c.toDataURL('image/jpeg',0.85); _lobCache[sig]=url; return url;
+}
+function lobbyThumb(id,v){
+  const img=_lobImgs&&_lobImgs[id+'_'+v]; if(!img) return '';
+  const b=LOBBY_BOXES[id]; const W=img.naturalWidth, H=img.naturalHeight;
+  const bx=b.x/100*W, by=b.y/100*H, bw=b.w/100*W, bh=b.h/100*H;
+  const tw=220, th=Math.round(tw*bh/bw); const c=document.createElement('canvas'); c.width=tw; c.height=th;
+  c.getContext('2d').drawImage(img,bx,by,bw,bh,0,0,tw,th);
+  return c.toDataURL('image/jpeg',0.85);
+}
+function roomBG(r){ return r.variant ? lobbyURL(roomRec(r.id).choices||{}) : stageImg(r); }
+
+function paintRoom(elm,r){ elm.style.backgroundImage=`url(${roomBG(r)})`; }
 
 function build(){
   const screen = document.getElementById('screen-postmap');
@@ -577,7 +627,9 @@ function fitRoom(){
 }
 function enterRoom(r){
   currentRoomId=r.id;
-  paintRoom(els.room,r); els.rvBg.style.backgroundImage=`url(${stageImg(r)})`;
+  const paint=()=>{ paintRoom(els.room,r); els.rvBg.style.backgroundImage=`url(${roomBG(r)})`; };
+  paint();
+  if(r.variant) preloadLobby().then(()=>{ if(currentRoomId===r.id) paint(); });
   els.rvTitle.textContent=pick(r.name);
   els.roomview.classList.add('on');
   const fit=()=>{ fitRoom(); updateRvUI(); };
@@ -613,6 +665,7 @@ function openPopup(){
   showPopup(r,tk);
 }
 function showPopup(r,tk){
+  if(r.variant) return showChooser(r,tk);
   const idx=doneCount(r)+1, afford=(save.stamps|0)>=tk.cost;
   const preview=stageImg(r, doneCount(r)+1);
   els.popup.innerHTML=`
@@ -631,15 +684,7 @@ function showPopup(r,tk){
   sfx.tap();
 }
 function closePopup(){ els.popupBack.classList.remove('on'); els.popup.innerHTML=''; }
-function buyNext(r,tk){
-  if((save.stamps|0) < tk.cost){ pmToast(t('needMoreStamps')); return; }
-  save.stamps=Math.max(0,(save.stamps|0)-tk.cost);
-  roomRec(r.id).stage = doneCount(r)+1;
-  persist();
-  sfx.stamp && sfx.stamp();
-  closePopup();
-  crossfadeRoom(r);
-  updateRvUI();
+function afterBuy(r,tk){
   const story=STORY[r.id]?.tasks?.[tk.id];
   setTimeout(()=>{
     playDialogue(story?.post, ()=>{
@@ -653,8 +698,48 @@ function buyNext(r,tk){
     });
   }, 800);
 }
+function buyNext(r,tk){
+  if((save.stamps|0) < tk.cost){ pmToast(t('needMoreStamps')); return; }
+  save.stamps=Math.max(0,(save.stamps|0)-tk.cost);
+  roomRec(r.id).stage = doneCount(r)+1;
+  persist();
+  sfx.stamp && sfx.stamp();
+  closePopup();
+  crossfadeRoom(r);
+  updateRvUI();
+  afterBuy(r,tk);
+}
+// ---------- variant chooser (lobby): pick 1 of 3 designs for the item ----------
+function showChooser(r,tk){
+  const idx=doneCount(r)+1, afford=(save.stamps|0)>=tk.cost;
+  const opts=LOBBY_VARKEYS.map(v=>
+    `<button class="pm-choice" data-v="${v}"${afford?'':' disabled'}>
+       <div class="pm-choice-thumb" style="background-image:url(${lobbyThumb(tk.id,v)})"></div>
+       <div class="pm-choice-lbl">${pick(VARLABEL[v])}</div>
+     </button>`).join('');
+  els.popup.innerHTML=`
+    <div class="pm-pop-head">${pick(L('Choose a design','Tasarım seç'))} — ${tk.icon} ${pick(tk.title)} <span class="pm-pop-step">${idx} / ${r.tasks.length}</span></div>
+    <div class="pm-choices">${opts}</div>
+    <div class="pm-pop-cost" style="justify-content:center;"><span data-icon="stamp" data-size="16"></span> ${tk.cost} ${pick(L('stamps','pul'))}${afford?'':' — '+t('notEnoughStamps')}</div>
+    <button id="pm-pop-cancel">${t('later')}</button>`;
+  if(window.__hydrateIcons) window.__hydrateIcons(els.popup);
+  els.popup.querySelectorAll('.pm-choice').forEach(btn=>{ if(!btn.disabled) btn.onclick=()=>chooseVariant(r,tk,btn.dataset.v); });
+  els.popup.querySelector('#pm-pop-cancel').onclick=closePopup;
+  els.popupBack.classList.add('on'); sfx.tap();
+}
+function chooseVariant(r,tk,v){
+  if((save.stamps|0) < tk.cost){ pmToast(t('needMoreStamps')); return; }
+  save.stamps=Math.max(0,(save.stamps|0)-tk.cost);
+  const rec=roomRec(r.id); rec.choices[tk.id]=v;
+  persist();
+  sfx.stamp && sfx.stamp();
+  closePopup();
+  crossfadeRoom(r);
+  updateRvUI();
+  afterBuy(r,tk);
+}
 function crossfadeRoom(r){
-  const next=stageImg(r);
+  const next=roomBG(r);
   const ov=document.createElement('div'); ov.className='pm-xfade';
   ov.style.backgroundImage=`url(${next})`;
   els.room.appendChild(ov);
@@ -722,4 +807,5 @@ export function renderPostMap(){
   updateRot(); layout(); buildScene();
   const rc=()=>{ updateRot(); layout(); buildScene(); centerOn(roomById(ORDER[Math.min(activeIdx(),ORDER.length-1)])); };
   requestAnimationFrame(rc); setTimeout(rc,60);
+  preloadLobby().then(()=>{ if(built) buildScene(); });
 }
