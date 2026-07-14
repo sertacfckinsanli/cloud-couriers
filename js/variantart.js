@@ -25,6 +25,15 @@ export const VARIANTS = {
     pos: { fountain: '28% 55%', arch: '49% 22%', flowers: '58% 55%', dovecote: '38% 58%' },
     fx: { fountain: {x:29,y:52,w:22,h:30}, arch: {x:49,y:23,w:17,h:28}, flowers: {x:58,y:56,w:38,h:34}, dovecote: {x:38,y:57,w:13,h:26} },
   },
+  sorting: {
+    dir: 'img/sorting/', prefix: 'sorting',
+    seq: ['bureau', 'shelf', 'franking', 'cart'],
+    code: { bureau: 'B', shelf: 'S', franking: 'K', cart: 'C' },
+    fixed: { cart: '1' },
+    labels: { '1': L('Classic','Klasik'), '2': L('Industrial','Endüstriyel'), '3': L('Celestial','Göksel') },
+    pos: { bureau: '22% 52%', shelf: '78% 48%', franking: '50% 32%' },
+    fx: { bureau: {x:22,y:52,w:26,h:36}, shelf: {x:78,y:48,w:22,h:36}, franking: {x:50,y:34,w:26,h:32}, cart: {x:50,y:66,w:28,h:26} },
+  },
 };
 
 export const VARIANT_CHOICES = ['1', '2', '3'];
