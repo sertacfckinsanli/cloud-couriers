@@ -9,17 +9,18 @@ import { sfx } from './audio.js';
 import { ROOM_STAGES } from './roomart.js';
 import { CHARS } from './characters.js';
 import { L, pick, t } from './i18n.js';
-import { LOBBY_BASE, LOBBY_VARS, LOBBY_BOXES, LOBBY_ORDER, LOBBY_VARKEYS } from './lobbyart.js';
+import { VARIANTS, VARIANT_CHOICES, variantKey, variantImg } from './variantart.js';
 
 const ROOMS = [
-  { id:'garden', name:L('Garden','Bahçe'), tasks:[
-    { id:'fountain', title:L('Restore the fountain','Fıskiyeyi onar'),                 icon:'⛲', cost:5 },
-    { id:'arch',     title:L('Repair the rose arch','Gül kemerini onar'),              icon:'🌹', cost:4 },
-    { id:'lamps',    title:L('Light the path','Yolu aydınlat'),                        icon:'💡', cost:5 },
-    { id:'flowers',  title:L('Plant the beds & add a bench','Çiçekleri dik & bank ekle'), icon:'🌷', cost:5 },
-    { id:'cleanup',  title:L('Final cleanup','Son temizlik'),                          icon:'✨', cost:4 },
+  { id:'garden', name:L('Garden','Bahçe'), variant:true, tasks:[
+    { id:'cleanup',  title:L('Big cleanup','Büyük temizlik'),                          icon:'✨', cost:4 },
+    { id:'fountain', title:L('Build the fountain','Fıskiyeyi kur'),                    icon:'⛲', cost:5 },
+    { id:'arch',     title:L('Raise the entrance arch','Giriş kemerini kur'),          icon:'🌹', cost:4 },
+    { id:'flowers',  title:L('Plant the garden','Bahçeyi çiçeklendir'),                icon:'🌷', cost:5 },
+    { id:'dovecote', title:L('Set up the mail dovecote','Posta güvercinliğini kur'),   icon:'🕊️', cost:5 },
   ] },
   { id:'lobby', name:L('Lobby','Lobi'), variant:true, tasks:[
+    { id:'cleanup',  title:L('Big cleanup','Büyük temizlik'),                          icon:'✨', cost:4 },
     { id:'mailwall', title:L('Restore the mail wall','Mektup duvarını onar'),          icon:'📬', cost:5 },
     { id:'counter',  title:L('Build the reception counter','Resepsiyon tezgahını kur'),icon:'🗄️', cost:5 },
     { id:'lounge',   title:L('Furnish the waiting lounge','Bekleme köşesini döşe'),     icon:'🛋️', cost:5 },
@@ -88,27 +89,31 @@ const STORY = {
                 "Heh. Minicik bir buluta göre büyük laflar. Bahçeden başla — misafiri önce o karşılar.")],
     ],
     tasks: {
-      fountain: { pre:[['gale',L("Couriers used to fill their flasks — and their courage — at that fountain. It hasn't sung in years.",
-                                  "Kuryeler mataralarını da cesaretlerini de o fıskiyeden doldururdu. Yıllardır sesi soluğu çıkmıyor.")]],
-                  post:[['poffy',L("It's singing again! Even the water looks happier!","Yeniden şarkı söylüyor! Suyun bile keyfi yerine geldi!")],
+      cleanup:  { pre:[['gale',L("Start with a good sweep, Poffy. A post office greets the whole sky with its garden.",
+                                  "Önce şöyle bir el süpürge çek, Poffy. Postane bütün gökyüzünü önce bahçesiyle selamlar.")]],
+                  post:[['poffy',L("Sparkling! Now we can actually see what we're rebuilding!",
+                                   "Pırıl pırıl! Artık neyi yeniden kurduğumuzu görebiliyoruz bari!")]] },
+      fountain: { pre:[['gale',L("A fountain stood right on that empty ring. Couriers filled their flasks — and their courage — there.",
+                                  "Şu boş kaidede bir fıskiye dururdu. Kuryeler matarayı da cesareti de oradan doldururdu.")]],
+                  post:[['poffy',L("It's singing! Even the water looks happy!","Şarkı söylüyor! Suyun bile keyfi yerinde!")],
                         ['gale',L("...I had forgotten that sound. Well done, little one.","...Bu sesi unutmuşum. Eline sağlık ufaklık.")]] },
-      arch:     { pre:[['poffy',L("A post office gate should smell like roses, not rust! Let's fix that arch.",
-                                   "Postane kapısı dediğin pas değil, gül kokmalı! Hadi şu kemeri onaralım.")]],
-                  post:[['gale',L("Rosie the songbird used to nest up there. Perhaps she'll hear the roses and come home.",
-                                  "Ötücü kuş Rosie eskiden oraya yuva yapardı. Belki güllerin kokusunu alır da evine döner.")]] },
-      lamps:    { pre:[['gale',L("Night couriers followed these lamps home through the fog. The Storm blew them all out at once.",
-                                  "Gece kuryeleri siste evin yolunu bu fenerlerle bulurdu. Fırtına hepsini bir gecede söndürdü.")]],
-                  post:[['poffy',L("Lit! Now nobody gets lost on the way to a hello!","Yandılar! Artık kimse bir 'merhaba'ya giderken yolunu kaybetmeyecek!")]] },
+      arch:     { pre:[['poffy',L("A post office gate should smell like roses, not rust! Let's raise a proper arch.",
+                                   "Postane kapısı dediğin pas değil, gül kokmalı! Hadi buraya adam gibi bir kemer dikelim.")]],
+                  post:[['gale',L("Rosie the songbird used to nest by that gate. Perhaps she'll smell the flowers and come home.",
+                                  "Ötücü kuş Rosie eskiden o kapının başında yuva yapardı. Belki çiçeklerin kokusunu alır da evine döner.")]] },
       flowers:  { pre:[['poffy',L("Flower beds! And a bench — tired wings need somewhere soft to wait.",
                                    "Çiçek tarhları! Bir de bank — yorgun kanatlara yumuşacık bir mola yeri lazım.")]],
                   post:[['rosie',L("♪ Tweet-tweedle-eet! ♪","♪ Cik-cikcik-cik! ♪")],
                         ['poffy',L("Gale, look! A songbird — on the new bench!","Gale, baksana! Bir ötücü kuş — yeni bankın üstünde!")],
                         ['gale',L("Well, I'll be... Welcome home, Rosie. The roses called, and you answered.",
                                   "Vay canına... Evine hoş geldin Rosie. Güller seslendi, sen de geldin demek.")]] },
-      cleanup:  { pre:[['gale',L("One last sweep, Poffy. A post office greets the whole sky with its garden.",
-                                  "Son bir el süpürge, Poffy. Postane bütün gökyüzünü önce bahçesiyle selamlar.")]],
-                  post:[['poffy',L("Sparkling! Now THAT'S a front yard worthy of the Letter Kingdom!",
-                                   "Pırıl pırıl! İşte Mektup Krallığı'na yakışır bir bahçe böyle olur!")],
+      dovecote: { pre:[['rosie',L("♪ Tweet? Tweet-tweet! ♪ (Rosie circles the front lawn, looking for somewhere to roost.)",
+                                   "♪ Cik? Cik-cik! ♪ (Rosie ön çimenin üstünde tur atıyor, tüneyecek yer arıyor.)")],
+                       ['gale',L("Mail-doves carried our letters long before balloons. Build them a home, and they'll come back too.",
+                                 "Balonlardan çok önce mektuplarımızı posta güvercinleri taşırdı. Onlara bir yuva kur, bak onlar da geri gelir.")]],
+                  post:[['rosie',L("♪ TWEET-TWEET-TWEEEET! ♪ (Rosie lands on the perch like she owns it. Two doves coo approvingly.)",
+                                   "♪ CİK-CİK-CİİİK! ♪ (Rosie tüneğe sanki tapusu varmış gibi konuyor. İki güvercin onaylarcasına guruluyor.)")],
+                        ['poffy',L("Full house! The garden's got its wings back!","Ev doldu! Bahçe kanatlarına yeniden kavuştu!")],
                         ['gale',L("The garden breathes again. Now... dare we open that door?",
                                   "Bahçe yeniden nefes alıyor. Ee... şu kapıyı açmaya cesaretin var mı?")]] },
     }
@@ -362,13 +367,17 @@ function roomRec(id){
   if(!r.choices) r.choices={};
   return r;
 }
+function vcfg(r){ return VARIANTS[r.id]; }
+function isFixedTask(r,tk){ const c=vcfg(r); return !!(c && c.fixed[tk.id]); }
 function doneCount(r){
-  if(r.variant) return LOBBY_ORDER.filter(id=>roomRec(r.id).choices[id]).length;
+  if(r.variant){ const rec=roomRec(r.id), c=vcfg(r); return (rec.stage>=1?1:0) + c.seq.filter(id=>rec.choices[id]).length; }
   return Math.min(roomRec(r.id).stage, r.tasks.length);
 }
 function roomComplete(r){ return doneCount(r) >= r.tasks.length; }
 function nextTask(r){
-  if(r.variant){ const rec=roomRec(r.id); const id=LOBBY_ORDER.find(k=>!rec.choices[k]); return id?r.tasks.find(tk=>tk.id===id):null; }
+  if(r.variant){ const rec=roomRec(r.id), c=vcfg(r);
+    if(!(rec.stage>=1)) return r.tasks[0];                                   // cleanup first
+    const id=c.seq.find(k=>!rec.choices[k]); return id?r.tasks.find(tk=>tk.id===id):null; }
   const d=doneCount(r); return d<r.tasks.length ? r.tasks[d] : null;
 }
 function stageImg(r,k){ const a=ROOM_STAGES[r.id]; return a[Math.max(0,Math.min(k===undefined?doneCount(r):k, a.length-1))]; }
@@ -378,48 +387,18 @@ function roomState(r){ if(roomComplete(r)) return 'done'; return ORDER.indexOf(r
 // ---------- DOM ----------
 let built=false, els={}, currentRoomId=null, rotated=false;
 
-// ---------- variant rooms (lobby): base + per-item chosen layers, composited live ----------
-const VARLABEL = { classic:L('Classic','Klasik'), rustic:L('Rustic','Rustik'), deco:L('Deco','Deco') };
-let _lobImgs=null, _lobReady=null; const _lobCache={};
-function preloadLobby(){
-  if(_lobReady) return _lobReady;
-  const srcs={ base:LOBBY_BASE };
-  for(const it of LOBBY_ORDER) for(const v of LOBBY_VARKEYS) srcs[it+'_'+v]=LOBBY_VARS[it][v];
-  _lobImgs={};
-  _lobReady=Promise.all(Object.entries(srcs).map(([k,src])=>new Promise(res=>{
-    const im=new Image(); im.onload=()=>{_lobImgs[k]=im;res();}; im.onerror=()=>res(); im.src=src;
-  })));
-  return _lobReady;
+// ---------- variant rooms: every choice combo is a pre-rendered full image ----------
+function childKey(r, taskId, v){                 // image key if `v` were chosen for taskId
+  const c=vcfg(r), rec=roomRec(r.id);
+  return variantKey(c, { stage:Math.max(1,rec.stage|0), choices:{...rec.choices, [taskId]:v} });
 }
-function roundRectPath(ctx,x,y,w,h,r){ r=Math.max(0,Math.min(r,w/2,h/2)); ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
-function lobbyURL(choices){
-  if(!_lobImgs||!_lobImgs.base) return LOBBY_BASE;
-  const sig=LOBBY_ORDER.map(id=>id+':'+(choices[id]||'')).join('|');
-  if(_lobCache[sig]) return _lobCache[sig];
-  const W=_lobImgs.base.naturalWidth||1264, H=_lobImgs.base.naturalHeight||542;
-  const c=document.createElement('canvas'); c.width=W; c.height=H; const ctx=c.getContext('2d');
-  ctx.drawImage(_lobImgs.base,0,0,W,H);
-  for(const id of LOBBY_ORDER){ const v=choices[id]; if(!v) continue; const img=_lobImgs[id+'_'+v]; if(!img) continue;
-    const b=LOBBY_BOXES[id]; const bx=b.x/100*W, by=b.y/100*H, bw=b.w/100*W, bh=b.h/100*H;
-    const oc=document.createElement('canvas'); oc.width=W; oc.height=H; const octx=oc.getContext('2d');
-    octx.drawImage(img,0,0,W,H);
-    octx.globalCompositeOperation='destination-in';
-    const fr=Math.max(5,Math.min(bw,bh)*0.09); octx.filter=`blur(${fr}px)`; octx.fillStyle='#fff';
-    roundRectPath(octx,bx+fr,by+fr,bw-2*fr,bh-2*fr,fr*1.4); octx.fill();
-    octx.filter='none'; octx.globalCompositeOperation='source-over';
-    ctx.drawImage(oc,0,0);
-  }
-  const url=c.toDataURL('image/jpeg',0.85); _lobCache[sig]=url; return url;
+function preloadVariantNext(r){                  // warm the browser cache for the upcoming options
+  const c=vcfg(r); const tk=nextTask(r); if(!c||!tk) return;
+  if(tk.id==='cleanup'){ new Image().src=variantImg(c, c.prefix+'_clean'); return; }
+  if(c.fixed[tk.id]){ new Image().src=variantImg(c, childKey(r,tk.id,c.fixed[tk.id])); return; }
+  for(const v of VARIANT_CHOICES) new Image().src=variantImg(c, childKey(r,tk.id,v));
 }
-function lobbyThumb(id,v){
-  const img=_lobImgs&&_lobImgs[id+'_'+v]; if(!img) return '';
-  const b=LOBBY_BOXES[id]; const W=img.naturalWidth, H=img.naturalHeight;
-  const bx=b.x/100*W, by=b.y/100*H, bw=b.w/100*W, bh=b.h/100*H;
-  const tw=220, th=Math.round(tw*bh/bw); const c=document.createElement('canvas'); c.width=tw; c.height=th;
-  c.getContext('2d').drawImage(img,bx,by,bw,bh,0,0,tw,th);
-  return c.toDataURL('image/jpeg',0.85);
-}
-function roomBG(r){ return r.variant ? lobbyURL(roomRec(r.id).choices||{}) : stageImg(r); }
+function roomBG(r){ return r.variant ? variantImg(vcfg(r), variantKey(vcfg(r), roomRec(r.id))) : stageImg(r); }
 
 function paintRoom(elm,r){ elm.style.backgroundImage=`url(${roomBG(r)})`; }
 
@@ -443,8 +422,14 @@ function build(){
         <div id="pm-rv-title"></div>
         <div class="pill"><span data-icon="stamp" data-size="20"></span> <span id="pm-rv-stamps">0</span></div>
       </div>
-      <div id="pm-rv-stage"><div id="pm-rv-bg"></div><div id="pm-rv-room"></div></div>
+      <div id="pm-rv-stage"><div id="pm-rv-bg"></div><div id="pm-rv-room"><div id="pm-item-glow"></div></div></div>
       <button id="pm-rv-build" aria-label="Renovate">🔨<span id="pm-rv-badge">0</span></button>
+      <div id="pm-choicebar">
+        <div class="pm-cb-title"></div>
+        <div class="pm-cb-opts"></div>
+        <button class="pm-cb-x" aria-label="Cancel">✕</button>
+      </div>
+      <button id="pm-cb-ok" aria-label="Confirm">✓</button>
       <div id="pm-dialog">
         <div class="pd-shade"></div>
         <img class="pd-portrait" alt="">
@@ -469,6 +454,9 @@ function build(){
     room:screen.querySelector('#pm-rv-room'), rvBg:screen.querySelector('#pm-rv-bg'),
     rvTitle:screen.querySelector('#pm-rv-title'), rvStamps:screen.querySelector('#pm-rv-stamps'),
     build:screen.querySelector('#pm-rv-build'), badge:screen.querySelector('#pm-rv-badge'),
+    choicebar:screen.querySelector('#pm-choicebar'), cbTitle:screen.querySelector('.pm-cb-title'),
+    cbOpts:screen.querySelector('.pm-cb-opts'), cbOk:screen.querySelector('#pm-cb-ok'),
+    cbX:screen.querySelector('.pm-cb-x'), glow:screen.querySelector('#pm-item-glow'),
     popupBack:screen.querySelector('#pm-popup-back'), popup:screen.querySelector('#pm-popup'),
     toast:screen.querySelector('#pm-toast'),
     dialog:screen.querySelector('#pm-dialog'), pdPortrait:screen.querySelector('.pd-portrait'),
@@ -482,6 +470,9 @@ function build(){
   screen.querySelector('#pm-settings').onclick = ()=> window.ui.openSettings();
   screen.querySelector('#pm-rv-back').onclick  = ()=>{ if(dlgActive) return; exitRoom(); };
   els.build.onclick = openPopup;
+  els.cbX.onclick  = ()=> closeChoiceBar(true);
+  els.cbOk.onclick = ()=>{ const r=roomById(currentRoomId); if(!r||!cbState) return;
+    const tk=r.tasks.find(x=>x.id===cbState.taskId); if(tk) confirmChoice(r,tk); };
   els.popupBack.onclick = e=>{ if(e.target===els.popupBack) closePopup(); };
   els.dialog.addEventListener('pointerdown', e=>{ if(e.target===els.pdSkip) return; advanceDialogue(); });
   els.pdSkip.onclick = skipDialogue;
@@ -609,7 +600,7 @@ function resetTestData(){
   save.rooms = {};
   save.stamps = ROOMS.reduce((sum,r)=>sum+r.tasks.reduce((s,tk)=>s+tk.cost,0),0);
   persist();
-  if(currentRoomId){ closePopup(); endDialogueSilent(); els.roomview.classList.remove('on'); currentRoomId=null; }
+  if(currentRoomId){ closeChoiceBar(true); closePopup(); endDialogueSilent(); els.roomview.classList.remove('on'); currentRoomId=null; }
   layout(); buildScene(); centerOn(roomById(ORDER[0]));
   pmToast('🔄 Reset!');
 }
@@ -627,9 +618,8 @@ function fitRoom(){
 }
 function enterRoom(r){
   currentRoomId=r.id;
-  const paint=()=>{ paintRoom(els.room,r); els.rvBg.style.backgroundImage=`url(${roomBG(r)})`; };
-  paint();
-  if(r.variant) preloadLobby().then(()=>{ if(currentRoomId===r.id) paint(); });
+  paintRoom(els.room,r); els.rvBg.style.backgroundImage=`url(${roomBG(r)})`;
+  if(r.variant) preloadVariantNext(r);
   els.rvTitle.textContent=pick(r.name);
   els.roomview.classList.add('on');
   const fit=()=>{ fitRoom(); updateRvUI(); };
@@ -641,7 +631,7 @@ function enterRoom(r){
     setTimeout(()=>playDialogue(STORY[r.id]?.intro), 350);
   }
 }
-function exitRoom(){ closePopup(); endDialogueSilent(); els.roomview.classList.remove('on'); currentRoomId=null; buildScene(); }
+function exitRoom(){ closeChoiceBar(true); closePopup(); endDialogueSilent(); els.roomview.classList.remove('on'); currentRoomId=null; buildScene(); }
 function updateRvUI(){
   const r=roomById(currentRoomId); if(!r) return;
   const rem=r.tasks.length-doneCount(r);
@@ -665,9 +655,11 @@ function openPopup(){
   showPopup(r,tk);
 }
 function showPopup(r,tk){
-  if(r.variant) return showChooser(r,tk);
+  if(r.variant && tk.id!=='cleanup' && !isFixedTask(r,tk)) return openChoiceBar(r,tk);
   const idx=doneCount(r)+1, afford=(save.stamps|0)>=tk.cost;
-  const preview=stageImg(r, doneCount(r)+1);
+  const preview = r.variant
+    ? variantImg(vcfg(r), tk.id==='cleanup' ? vcfg(r).prefix+'_clean' : childKey(r,tk.id,vcfg(r).fixed[tk.id]))
+    : stageImg(r, doneCount(r)+1);
   els.popup.innerHTML=`
     <div class="pm-pop-head">${t('nextRenovation')} <span class="pm-pop-step">${idx} / ${r.tasks.length}</span></div>
     <div class="pm-pop-item">
@@ -701,41 +693,109 @@ function afterBuy(r,tk){
 function buyNext(r,tk){
   if((save.stamps|0) < tk.cost){ pmToast(t('needMoreStamps')); return; }
   save.stamps=Math.max(0,(save.stamps|0)-tk.cost);
-  roomRec(r.id).stage = doneCount(r)+1;
+  const rec=roomRec(r.id);
+  if(r.variant){
+    if(tk.id==='cleanup') rec.stage=1;
+    else rec.choices[tk.id]=vcfg(r).fixed[tk.id];      // fixed single-design task
+  } else {
+    rec.stage = doneCount(r)+1;
+  }
   persist();
   sfx.stamp && sfx.stamp();
   closePopup();
   crossfadeRoom(r);
+  if(r.variant){
+    const fx=vcfg(r).fx[tk.id];
+    if(fx) setTimeout(()=>burstParticles(fx.x,fx.y), 300);
+    preloadVariantNext(r);
+  }
   updateRvUI();
   afterBuy(r,tk);
 }
-// ---------- variant chooser (lobby): pick 1 of 3 designs for the item ----------
-function showChooser(r,tk){
-  const idx=doneCount(r)+1, afford=(save.stamps|0)>=tk.cost;
-  const opts=LOBBY_VARKEYS.map(v=>
-    `<button class="pm-choice" data-v="${v}"${afford?'':' disabled'}>
-       <div class="pm-choice-thumb" style="background-image:url(${lobbyThumb(tk.id,v)})"></div>
-       <div class="pm-choice-lbl">${pick(VARLABEL[v])}</div>
-     </button>`).join('');
-  els.popup.innerHTML=`
-    <div class="pm-pop-head">${pick(L('Choose a design','Tasarım seç'))} — ${tk.icon} ${pick(tk.title)} <span class="pm-pop-step">${idx} / ${r.tasks.length}</span></div>
-    <div class="pm-choices">${opts}</div>
-    <div class="pm-pop-cost" style="justify-content:center;"><span data-icon="stamp" data-size="16"></span> ${tk.cost} ${pick(L('stamps','pul'))}${afford?'':' — '+t('notEnoughStamps')}</div>
-    <button id="pm-pop-cancel">${t('later')}</button>`;
-  if(window.__hydrateIcons) window.__hydrateIcons(els.popup);
-  els.popup.querySelectorAll('.pm-choice').forEach(btn=>{ if(!btn.disabled) btn.onclick=()=>chooseVariant(r,tk,btn.dataset.v); });
-  els.popup.querySelector('#pm-pop-cancel').onclick=closePopup;
-  els.popupBack.classList.add('on'); sfx.tap();
+// ---------- variant choice bar: bottom swatches + LIVE in-room preview ----------
+// Selecting a design paints the child render straight into the room; the selected
+// swatch breathes (glow), the green ✓ confirms. Used by every variant room.
+let cbState=null;                                   // {taskId, sel}
+function burstParticles(cx,cy){                     // sparkle burst over the placed item
+  for(let i=0;i<22;i++){
+    const star=i%4===0;
+    const el=document.createElement('div');
+    el.className='pm-spark'+(star?' star':'');
+    if(star) el.textContent='✦';
+    const ang=Math.random()*Math.PI*2, dist=26+Math.random()*95;
+    el.style.setProperty('--dx',(Math.cos(ang)*dist).toFixed(1)+'px');
+    el.style.setProperty('--dy',(Math.sin(ang)*dist-24).toFixed(1)+'px');
+    el.style.setProperty('--s',(star?13+Math.random()*6:5+Math.random()*7).toFixed(1)+'px');
+    el.style.setProperty('--d',(0.7+Math.random()*0.5).toFixed(2)+'s');
+    el.style.setProperty('--dl',(Math.random()*0.18).toFixed(2)+'s');
+    el.style.setProperty('--c',['#ffd968','#fff3c4','#ffe9a8','#ffffff'][i%4]);
+    el.style.left=cx+'%'; el.style.top=cy+'%';
+    els.room.appendChild(el);
+    setTimeout(()=>el.remove(),1700);
+  }
 }
-function chooseVariant(r,tk,v){
+function showItemGlow(r,taskId){
+  const fx=vcfg(r) && vcfg(r).fx[taskId]; if(!fx){ hideItemGlow(); return; }
+  els.glow.style.left=fx.x+'%'; els.glow.style.top=fx.y+'%';
+  els.glow.style.width=fx.w+'%'; els.glow.style.height=fx.h+'%';
+  els.glow.classList.add('on');
+}
+function hideItemGlow(){ els.glow.classList.remove('on'); }
+function openChoiceBar(r,tk){
+  cbState={taskId:tk.id, sel:null};
+  const c=vcfg(r);
+  els.cbTitle.innerHTML=`${tk.icon} ${pick(tk.title)} · <span class="pm-cb-cost"><span data-icon="stamp" data-size="14"></span> ${tk.cost} ${pick(L('stamps','pul'))}</span>`;
+  els.cbOpts.innerHTML=VARIANT_CHOICES.map(v=>
+    `<button class="pm-cb-opt" data-v="${v}">
+       <div class="pm-cb-thumb" style="background-image:url(${variantImg(c, childKey(r,tk.id,v))}); background-position:${c.pos[tk.id]||'50% 50%'};"></div>
+       <div class="pm-cb-lbl">${pick(c.labels[v])}</div>
+     </button>`).join('');
+  if(window.__hydrateIcons) window.__hydrateIcons(els.cbTitle);
+  els.cbOpts.querySelectorAll('.pm-cb-opt').forEach(b=>{ b.onclick=()=>selectVariant(r,tk,b.dataset.v); });
+  const afford=(save.stamps|0)>=tk.cost;
+  els.cbOk.disabled=!afford; els.cbOk.classList.toggle('cant',!afford);
+  els.build.style.display='none';
+  els.choicebar.classList.add('on'); els.cbOk.classList.add('on');
+  showItemGlow(r,tk.id);                            // the item itself breathes white while previewing
+  selectVariant(r,tk,'1');                          // preselect first design -> instant preview
+}
+function selectVariant(r,tk,v){
+  if(!cbState) return;
+  cbState.sel=v;
+  els.cbOpts.querySelectorAll('.pm-cb-opt').forEach(b=>b.classList.toggle('sel',b.dataset.v===v));
+  const url=variantImg(vcfg(r), childKey(r,tk.id,v));
+  els.room.style.backgroundImage=`url(${url})`;     // live preview: item shown in place
+  els.rvBg.style.backgroundImage=`url(${url})`;
+  sfx.tap();
+}
+function closeChoiceBar(revert){
+  if(!cbState) return;
+  cbState=null;
+  hideItemGlow();
+  els.choicebar.classList.remove('on'); els.cbOk.classList.remove('on');
+  const r=roomById(currentRoomId);
+  if(r){
+    if(revert){ paintRoom(els.room,r); els.rvBg.style.backgroundImage=`url(${roomBG(r)})`; }
+    updateRvUI();                                   // restores the 🔨 button visibility
+  }
+}
+function confirmChoice(r,tk){
   if((save.stamps|0) < tk.cost){ pmToast(t('needMoreStamps')); return; }
+  const v=cbState&&cbState.sel; if(!v) return;
+  const rec=roomRec(r.id);
+  const parentUrl=variantImg(vcfg(r), variantKey(vcfg(r), rec));   // state BEFORE this item, for the fade-in
   save.stamps=Math.max(0,(save.stamps|0)-tk.cost);
-  const rec=roomRec(r.id); rec.choices[tk.id]=v;
+  rec.choices[tk.id]=v;
   persist();
   sfx.stamp && sfx.stamp();
-  closePopup();
+  closeChoiceBar(false);
+  // settle ritual: drop back to the pre-item image, fade the item in, sparkle burst
+  els.room.style.backgroundImage=`url(${parentUrl})`;
+  els.rvBg.style.backgroundImage=`url(${parentUrl})`;
   crossfadeRoom(r);
-  updateRvUI();
+  const fx=vcfg(r).fx[tk.id]||{x:50,y:50};
+  setTimeout(()=>burstParticles(fx.x,fx.y), 300);
+  preloadVariantNext(r);
   afterBuy(r,tk);
 }
 function crossfadeRoom(r){
@@ -744,9 +804,6 @@ function crossfadeRoom(r){
   ov.style.backgroundImage=`url(${next})`;
   els.room.appendChild(ov);
   requestAnimationFrame(()=>ov.classList.add('on'));
-  const poof=document.createElement('div'); poof.className='pm-poof'; poof.textContent='✨';
-  poof.style.cssText='left:50%;top:46%;';
-  els.room.appendChild(poof); setTimeout(()=>poof.remove(),900);
   setTimeout(()=>{ els.room.style.backgroundImage=`url(${next})`; els.rvBg.style.backgroundImage=`url(${next})`; ov.remove(); }, 640);
 }
 
@@ -800,12 +857,30 @@ let toastT=null;
 function pmToast(m){ els.toast.textContent=m; els.toast.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>els.toast.classList.remove('show'),1800); }
 
 // ---------- entry ----------
+// legacy migration: stage-chain era records (stage up to 5) for rooms that are now
+// variant trees -> mark done steps as classic ('1') designs so old saves stay complete.
+function migrateVariantSaves(){
+  let changed=false;
+  for(const r of ROOMS){
+    if(!r.variant) continue;
+    const c=vcfg(r), rec=stt()[r.id];
+    if(!rec || rec.choices && Object.keys(rec.choices).length) continue;
+    const legacy=rec.stage|0;
+    if(legacy>=2){                       // stage 1 was just the first old task; >=2 means real progress
+      rec.choices={};
+      c.seq.slice(0, Math.min(legacy-1, c.seq.length)).forEach(id=>{ rec.choices[id]=c.fixed[id]||'1'; });
+      rec.stage=1; changed=true;
+    }
+  }
+  if(changed) persist();
+}
+
 export function renderPostMap(){
   if(!built) build();
+  migrateVariantSaves();
   if(!save.metaWelcome){ save.stamps=(save.stamps|0)+40; save.metaWelcome=1; persist(); setTimeout(()=>pmToast(t('welcomeStamps')),400); }
   els.roomview.classList.remove('on'); els.popupBack.classList.remove('on'); endDialogueSilent(); currentRoomId=null;
   updateRot(); layout(); buildScene();
   const rc=()=>{ updateRot(); layout(); buildScene(); centerOn(roomById(ORDER[Math.min(activeIdx(),ORDER.length-1)])); };
   requestAnimationFrame(rc); setTimeout(rc,60);
-  preloadLobby().then(()=>{ if(built) buildScene(); });
 }
