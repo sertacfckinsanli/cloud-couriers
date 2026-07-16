@@ -34,6 +34,16 @@ export const VARIANTS = {
     pos: { bureau: '22% 52%', shelf: '78% 48%', franking: '50% 32%' },
     fx: { bureau: {x:22,y:52,w:26,h:36}, shelf: {x:78,y:48,w:22,h:36}, franking: {x:50,y:34,w:26,h:32}, cart: {x:50,y:66,w:28,h:26} },
   },
+  office: {
+    dir: 'img/office/', prefix: 'office',
+    // fixed items FIRST (rug, orrery) so the choice tree doesn't multiply; then choice items.
+    seq: ['rug', 'orrery', 'desk', 'shelf', 'reading'],
+    code: { rug: 'R', orrery: 'O', desk: 'D', shelf: 'K', reading: 'A' },
+    fixed: { rug: '1', orrery: '1' },
+    labels: { '1': L('Classic','Klasik'), '2': L('Steampunk','Steampunk'), '3': L('Celestial','Göksel') },
+    pos: { rug: '50% 60%', orrery: '50% 32%', desk: '63% 44%', shelf: '24% 44%', reading: '42% 64%' },
+    fx: { rug: {x:50,y:60,w:30,h:20}, orrery: {x:50,y:32,w:14,h:22}, desk: {x:63,y:44,w:22,h:24}, shelf: {x:24,y:44,w:18,h:32}, reading: {x:42,y:64,w:36,h:28} },
+  },
 };
 
 export const VARIANT_CHOICES = ['1', '2', '3'];
