@@ -24,6 +24,18 @@ export const VARIANTS = {
     labels: { '1': L('Classic','Klasik'), '2': L('Rustic','Rustik'), '3': L('Celestial','Göksel') },
     pos: { fountain: '28% 55%', arch: '49% 22%', flowers: '58% 55%', dovecote: '38% 58%' },
     fx: { fountain: {x:29,y:52,w:22,h:30}, arch: {x:49,y:23,w:17,h:28}, flowers: {x:58,y:56,w:38,h:34}, dovecote: {x:38,y:57,w:13,h:26} },
+    // LAYERED: room is composited at runtime from a base + item sprites instead of shipping
+    // one full JPEG per state (32 files 14MB -> 10 files 2.2MB). z = back-to-front draw order.
+    layered: {
+      FW: 2424, FH: 1039, base: 'lay_base.jpg', dirty: 'lay_dirty.jpg',
+      z: ['arch', 'flowers', 'fountain', 'dovecote'],
+      sprites: {
+        fountain: { '1': {f:'lay_F1.png',x:601,y:349,w:374}, '2': {f:'lay_F2.png',x:599,y:390,w:324}, '3': {f:'lay_F3.png',x:564,y:347,w:375} },
+        arch:     { '1': {f:'lay_A1.png',x:1073,y:66,w:275}, '2': {f:'lay_A2.png',x:1078,y:76,w:269}, '3': {f:'lay_A3.png',x:1027,y:21,w:348} },
+        flowers:  { '1': {f:'lay_G1.png',x:566,y:152,w:1300} },
+        dovecote: { '1': {f:'lay_P1.png',x:863,y:466,w:158} },
+      },
+    },
   },
   sorting: {
     dir: 'img/sorting/', prefix: 'sorting',
@@ -60,3 +72,22 @@ export function variantKey(cfg, rec) {
   return any ? k : cfg.prefix + '_clean';
 }
 export function variantImg(cfg, key) { return cfg.dir + key + '.jpg'; }
+
+export function isLayered(cfg) { return !!(cfg && cfg.layered); }
+
+// Ordered draw layers for a room state (base first, then item sprites back-to-front).
+// Each layer: { url, x, y, w } in source pixels (x/y/w omitted for the full-frame base).
+export function variantLayers(cfg, rec) {
+  const M = cfg.layered;
+  if (!(rec && rec.stage >= 1)) return [{ url: cfg.dir + M.dirty }];
+  const layers = [{ url: cfg.dir + M.base }];
+  // present items = seq walk, stopping at first unchosen (matches variantKey)
+  const present = {};
+  for (const id of cfg.seq) { const v = rec.choices && rec.choices[id]; if (!v || !'123'.includes(v)) break; present[id] = v; }
+  for (const id of M.z) {
+    const v = present[id]; if (v === undefined) continue;
+    const sp = M.sprites[id] && M.sprites[id][v]; if (!sp) continue;
+    layers.push({ url: cfg.dir + sp.f, x: sp.x, y: sp.y, w: sp.w });
+  }
+  return layers;
+}

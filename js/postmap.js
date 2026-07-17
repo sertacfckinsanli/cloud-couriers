@@ -9,7 +9,7 @@ import { sfx } from './audio.js';
 import { ROOM_STAGES } from './roomart.js';
 import { CHARS } from './characters.js';
 import { L, pick, t } from './i18n.js';
-import { VARIANTS, VARIANT_CHOICES, variantKey, variantImg } from './variantart.js';
+import { VARIANTS, VARIANT_CHOICES, variantKey, variantImg, isLayered, variantLayers } from './variantart.js';
 
 const ROOMS = [
   { id:'garden', name:L('Garden','Bahçe'), variant:true, tasks:[
@@ -400,13 +400,60 @@ function childKey(r, taskId, v){                 // image key if `v` were chosen
 }
 function preloadVariantNext(r){                  // warm the browser cache for the upcoming options
   const c=vcfg(r); const tk=nextTask(r); if(!c||!tk) return;
+  if(r.variant && isLayered(c)){               // layered: warm the sprite PNGs so compose is instant
+    _loadImg(c.dir + c.layered.base);
+    const sp=c.layered.sprites[tk.id];
+    if(sp){ if(c.fixed[tk.id]){ const s=sp[c.fixed[tk.id]]; if(s)_loadImg(c.dir+s.f); }
+            else for(const v of VARIANT_CHOICES){ const s=sp[v]; if(s)_loadImg(c.dir+s.f); } }
+    return;
+  }
   if(tk.id==='cleanup'){ new Image().src=variantImg(c, c.prefix+'_clean'); return; }
   if(c.fixed[tk.id]){ new Image().src=variantImg(c, childKey(r,tk.id,c.fixed[tk.id])); return; }
   for(const v of VARIANT_CHOICES) new Image().src=variantImg(c, childKey(r,tk.id,v));
 }
-function roomBG(r){ return r.variant ? variantImg(vcfg(r), variantKey(vcfg(r), roomRec(r.id))) : stageImg(r); }
+// ---------- layered rooms: composite base + item sprites into one image at runtime ----------
+const _limg = new Map();   // url -> Promise<HTMLImageElement>
+const _lbg  = new Map();   // variantKey -> composited dataURL
+function _loadImg(url){
+  let p=_limg.get(url);
+  if(!p){ p=new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej(new Error(url)); im.src=url; }); _limg.set(url,p); }
+  return p;
+}
+async function _compose(cfg, key, layers){
+  if(_lbg.has(key)) return _lbg.get(key);
+  const M=cfg.layered, cv=document.createElement('canvas'); cv.width=M.FW; cv.height=M.FH;
+  const ctx=cv.getContext('2d');
+  for(const Ly of layers){ let im; try{ im=await _loadImg(Ly.url); }catch(e){ continue; }
+    if(Ly.w){ const w=Ly.w, h=im.naturalHeight*(w/im.naturalWidth); ctx.drawImage(im, Ly.x, Ly.y, w, h); }
+    else ctx.drawImage(im, 0, 0, M.FW, M.FH); }
+  const out=cv.toDataURL('image/jpeg', 0.92); _lbg.set(key, out); return out;
+}
+// resolve the (possibly composited) bg url for room r at state rec; Promise for layered.
+function bgURLAsync(r, rec){
+  const cfg=vcfg(r);
+  if(!(r.variant && isLayered(cfg))) return Promise.resolve(rec ? variantImg(cfg, variantKey(cfg, rec)) : roomBG(r));
+  rec = rec || roomRec(r.id);
+  return _compose(cfg, variantKey(cfg, rec), variantLayers(cfg, rec));
+}
+// paint target element(s)' backgroundImage for room r at state rec (default: saved rec).
+// Layered rooms show an instant placeholder, then swap in the composite when ready (stale-guarded).
+function paintBG(targets, r, rec){
+  if(!Array.isArray(targets)) targets=[targets];
+  const cfg=vcfg(r);
+  if(!(r.variant && isLayered(cfg))){ const u = rec ? variantImg(cfg, variantKey(cfg, rec)) : roomBG(r); targets.forEach(t=>{ t.style.backgroundImage=`url(${u})`; }); return; }
+  rec = rec || roomRec(r.id);
+  const key=variantKey(cfg, rec);
+  const imm = _lbg.get(key) || (cfg.dir + (rec.stage>=1 ? cfg.layered.base : cfg.layered.dirty));
+  targets.forEach(t=>{ t.style.backgroundImage=`url(${imm})`; t.dataset.bgkey=key; });
+  _compose(cfg, key, variantLayers(cfg, rec)).then(u=>{ targets.forEach(t=>{ if(t.dataset.bgkey===key) t.style.backgroundImage=`url(${u})`; }); });
+}
+function roomBG(r){
+  if(r.variant && isLayered(vcfg(r))){ const c=vcfg(r), rec=roomRec(r.id), key=variantKey(c,rec);
+    return _lbg.get(key) || (c.dir + (rec.stage>=1 ? c.layered.base : c.layered.dirty)); }
+  return r.variant ? variantImg(vcfg(r), variantKey(vcfg(r), roomRec(r.id))) : stageImg(r);
+}
 
-function paintRoom(elm,r){ elm.style.backgroundImage=`url(${roomBG(r)})`; }
+function paintRoom(elm,r){ paintBG(elm, r); }
 
 function build(){
   const screen = document.getElementById('screen-postmap');
@@ -624,7 +671,7 @@ function fitRoom(){
 }
 function enterRoom(r){
   currentRoomId=r.id;
-  paintRoom(els.room,r); els.rvBg.style.backgroundImage=`url(${roomBG(r)})`;
+  paintBG([els.room, els.rvBg], r);
   if(r.variant) preloadVariantNext(r);
   els.rvTitle.textContent=pick(r.name);
   els.roomview.classList.add('on');
@@ -751,13 +798,21 @@ function openChoiceBar(r,tk){
   cbState={taskId:tk.id, sel:null};
   const c=vcfg(r);
   els.cbTitle.innerHTML=`${tk.icon} ${pick(tk.title)} · <span class="pm-cb-cost"><span data-icon="stamp" data-size="14"></span> ${tk.cost} ${pick(L('stamps','pul'))}</span>`;
+  const layered = r.variant && isLayered(c);
   els.cbOpts.innerHTML=VARIANT_CHOICES.map(v=>
     `<button class="pm-cb-opt" data-v="${v}">
-       <div class="pm-cb-thumb" style="background-image:url(${variantImg(c, childKey(r,tk.id,v))}); background-position:${c.pos[tk.id]||'50% 50%'};"></div>
+       <div class="pm-cb-thumb" style="${layered?'':`background-image:url(${variantImg(c, childKey(r,tk.id,v))});`} background-position:${c.pos[tk.id]||'50% 50%'};"></div>
        <div class="pm-cb-lbl">${pick(c.labels[v])}</div>
      </button>`).join('');
   if(window.__hydrateIcons) window.__hydrateIcons(els.cbTitle);
   els.cbOpts.querySelectorAll('.pm-cb-opt').forEach(b=>{ b.onclick=()=>selectVariant(r,tk,b.dataset.v); });
+  if(layered){                                    // compose each option's thumbnail from layers
+    const rec=roomRec(r.id);
+    els.cbOpts.querySelectorAll('.pm-cb-opt').forEach(b=>{ const v=b.dataset.v;
+      const prev={stage:Math.max(1,rec.stage|0), choices:{...rec.choices,[tk.id]:v}};
+      _compose(c, variantKey(c,prev), variantLayers(c,prev)).then(u=>{ const th=b.querySelector('.pm-cb-thumb'); if(th) th.style.backgroundImage=`url(${u})`; });
+    });
+  }
   const afford=(save.stamps|0)>=tk.cost;
   els.cbOk.disabled=!afford; els.cbOk.classList.toggle('cant',!afford);
   els.build.style.display='none';
@@ -769,9 +824,8 @@ function selectVariant(r,tk,v){
   if(!cbState) return;
   cbState.sel=v;
   els.cbOpts.querySelectorAll('.pm-cb-opt').forEach(b=>b.classList.toggle('sel',b.dataset.v===v));
-  const url=variantImg(vcfg(r), childKey(r,tk.id,v));
-  els.room.style.backgroundImage=`url(${url})`;     // live preview: item shown in place
-  els.rvBg.style.backgroundImage=`url(${url})`;
+  const rec=roomRec(r.id);
+  paintBG([els.room, els.rvBg], r, { stage: Math.max(1, rec.stage|0), choices: {...rec.choices, [tk.id]: v} }); // live preview
   sfx.tap();
 }
 function closeChoiceBar(revert){
@@ -781,7 +835,7 @@ function closeChoiceBar(revert){
   els.choicebar.classList.remove('on'); els.cbOk.classList.remove('on');
   const r=roomById(currentRoomId);
   if(r){
-    if(revert){ paintRoom(els.room,r); els.rvBg.style.backgroundImage=`url(${roomBG(r)})`; }
+    if(revert){ paintBG([els.room, els.rvBg], r); }
     updateRvUI();                                   // restores the 🔨 button visibility
   }
 }
@@ -789,15 +843,14 @@ function confirmChoice(r,tk){
   if((save.stamps|0) < tk.cost){ pmToast(t('needMoreStamps')); return; }
   const v=cbState&&cbState.sel; if(!v) return;
   const rec=roomRec(r.id);
-  const parentUrl=variantImg(vcfg(r), variantKey(vcfg(r), rec));   // state BEFORE this item, for the fade-in
+  const parentRec={ stage: Math.max(1, rec.stage|0), choices: {...rec.choices} };  // state BEFORE this item, for the fade-in
   save.stamps=Math.max(0,(save.stamps|0)-tk.cost);
   rec.choices[tk.id]=v;
   persist();
   sfx.stamp && sfx.stamp();
   closeChoiceBar(false);
   // settle ritual: drop back to the pre-item image, fade the item in, sparkle burst
-  els.room.style.backgroundImage=`url(${parentUrl})`;
-  els.rvBg.style.backgroundImage=`url(${parentUrl})`;
+  paintBG([els.room, els.rvBg], r, parentRec);
   crossfadeRoom(r);
   const fx=vcfg(r).fx[tk.id]||{x:50,y:50};
   setTimeout(()=>burstParticles(fx.x,fx.y), 300);
@@ -805,12 +858,13 @@ function confirmChoice(r,tk){
   afterBuy(r,tk);
 }
 function crossfadeRoom(r){
-  const next=roomBG(r);
-  const ov=document.createElement('div'); ov.className='pm-xfade';
-  ov.style.backgroundImage=`url(${next})`;
-  els.room.appendChild(ov);
-  requestAnimationFrame(()=>ov.classList.add('on'));
-  setTimeout(()=>{ els.room.style.backgroundImage=`url(${next})`; els.rvBg.style.backgroundImage=`url(${next})`; ov.remove(); }, 640);
+  bgURLAsync(r).then(next=>{
+    const ov=document.createElement('div'); ov.className='pm-xfade';
+    ov.style.backgroundImage=`url(${next})`;
+    els.room.appendChild(ov);
+    requestAnimationFrame(()=>ov.classList.add('on'));
+    setTimeout(()=>{ els.room.style.backgroundImage=`url(${next})`; els.rvBg.style.backgroundImage=`url(${next})`; ov.remove(); }, 640);
+  });
 }
 
 // ---------- map pan (horizontal, rotation-aware, with fling momentum) ----------
