@@ -15,6 +15,15 @@ export const VARIANTS = {
     labels: { '1': L('Classic','Klasik'), '2': L('Rustic','Rustik'), '3': L('Deco','Deco') },
     pos: { mailwall: '24% 48%', counter: '76% 48%', lounge: '50% 62%' },
     fx: { mailwall: {x:29,y:44,w:26,h:40}, counter: {x:67,y:47,w:30,h:36}, lounge: {x:50,y:63,w:32,h:32} },
+    layered: {
+      FW: 2424, FH: 1039, base: 'lay_base.jpg', dirty: 'lay_dirty.jpg',
+      z: ['mailwall', 'counter', 'lounge'],
+      sprites: {
+        mailwall: { '1': {f:'lay_M1.png',x:500,y:271,w:378}, '2': {f:'lay_M2.png',x:489,y:232,w:415}, '3': {f:'lay_M3.png',x:444,y:195,w:465} },
+        counter:  { '1': {f:'lay_C1.png',x:1250,y:351,w:666}, '2': {f:'lay_C2.png',x:1216,y:312,w:694}, '3': {f:'lay_C3.png',x:1281,y:312,w:596} },
+        lounge:   { '1': {f:'lay_L1.png',x:875,y:518,w:566}, '2': {f:'lay_L2.png',x:941,y:513,w:503}, '3': {f:'lay_L3.png',x:905,y:460,w:539} },
+      },
+    },
   },
   garden: {
     dir: 'img/garden/', prefix: 'garden',
