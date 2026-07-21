@@ -55,6 +55,28 @@ export const VARIANTS = {
     pos: { bureau: '22% 52%', shelf: '78% 48%', franking: '50% 32%' },
     fx: { bureau: {x:22,y:52,w:26,h:36}, shelf: {x:78,y:48,w:22,h:36}, franking: {x:50,y:34,w:26,h:32}, cart: {x:50,y:66,w:28,h:26} },
   },
+  kitchen: {
+    dir: 'img/kitchen/', prefix: 'kitchen',
+    // fixed helpers first (flour, garland), then 4 choice furniture — layered (runtime composite)
+    seq: ['flour', 'garland', 'oven', 'pantry', 'island', 'tea'],
+    code: { flour: 'F', garland: 'G', oven: 'O', pantry: 'P', island: 'I', tea: 'T' },
+    fixed: { flour: '1', garland: '1' },
+    labels: { '1': L('Classic','Klasik'), '2': L('Vintage','Vintage'), '3': L('Celestial','Göksel') },
+    pos: { flour: '62% 72%', garland: '50% 20%', oven: '28% 40%', pantry: '47% 34%', island: '48% 58%', tea: '71% 62%' },
+    fx: { flour: {x:62,y:72,w:16,h:20}, garland: {x:50,y:20,w:72,h:22}, oven: {x:28,y:40,w:18,h:36}, pantry: {x:47,y:34,w:14,h:42}, island: {x:48,y:58,w:24,h:30}, tea: {x:71,y:62,w:14,h:24} },
+    layered: {
+      FW: 2424, FH: 1039, base: 'lay_base.jpg', dirty: 'lay_dirty.jpg',
+      z: ['garland', 'oven', 'pantry', 'island', 'tea', 'flour'],
+      sprites: {
+        flour:   { '1': {f:'lay_F1.png',x:1412,y:658,w:259} },
+        garland: { '1': {f:'lay_G1.png',x:523,y:53,w:1389} },
+        oven:    { '1': {f:'lay_O1.png',x:521,y:252,w:388}, '2': {f:'lay_O2.png',x:552,y:343,w:298}, '3': {f:'lay_O3.png',x:506,y:368,w:325} },
+        pantry:  { '1': {f:'lay_P1.png',x:996,y:115,w:267}, '2': {f:'lay_P2.png',x:970,y:129,w:295}, '3': {f:'lay_P3.png',x:1016,y:102,w:278} },
+        island:  { '1': {f:'lay_I1.png',x:946,y:447,w:466}, '2': {f:'lay_I2.png',x:914,y:406,w:510}, '3': {f:'lay_I3.png',x:939,y:414,w:474} },
+        tea:     { '1': {f:'lay_T1.png',x:1633,y:513,w:211}, '2': {f:'lay_T2.png',x:1621,y:524,w:231}, '3': {f:'lay_T3.png',x:1610,y:522,w:221} },
+      },
+    },
+  },
   office: {
     dir: 'img/office/', prefix: 'office',
     // fixed items FIRST (rug, orrery) so the choice tree doesn't multiply; then choice items.
