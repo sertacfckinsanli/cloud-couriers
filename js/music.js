@@ -13,7 +13,7 @@ const TRACKS = {
   moon:       'sleeping-moon-isles.mp3',
   storm:      'storm-valley.mp3',
 };
-const REGION_TRACK = { 1:'cotton', 2:'rainbow', 3:'moon', 4:'storm' };
+const REGION_TRACK = { 1:'cotton', 2:'rainbow', 3:'moon', 4:'storm', 5:'moon' };
 const LOOP_VOL = 0.4;
 
 let unlocked = false;      // a user gesture has happened → autoplay allowed

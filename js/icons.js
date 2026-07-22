@@ -112,6 +112,27 @@ export function zapIcon(size = 30, on = false) {
         <g stroke="#ffe9a8" stroke-width="3" stroke-linecap="round"><path d="M8 20 l6 4 M56 20 l-6 4 M10 46 l7 -3 M54 46 l-7 -3"/></g>`)
     : svg(size, `<path d="M36 10 L22 34 h9 L28 54 L44 28 H32Z" fill="none" stroke="#8a90b8" stroke-width="3.5" stroke-linejoin="round" opacity=".8"/>`);
 }
+export function portalIcon(size = 34, tint = '#7fd4ff', deep = '#2f7fd1') {
+  return svg(size, `
+    <circle cx="32" cy="32" r="24" fill="${tint}" opacity=".25"/>
+    <path d="M32 10 a22 22 0 0 1 22 22 a16 16 0 0 1 -16 16 a11 11 0 0 1 -11 -11 a7 7 0 0 1 7 -7"
+      fill="none" stroke="${deep}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M32 54 a22 22 0 0 1 -22 -22 a16 16 0 0 1 16 -16 a11 11 0 0 1 11 11 a7 7 0 0 1 -7 7"
+      fill="none" stroke="${tint}" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="32" cy="32" r="4.5" fill="#fff"/>
+    <circle cx="18" cy="16" r="2.4" fill="#fff" opacity=".9"/><circle cx="48" cy="46" r="2.4" fill="#fff" opacity=".9"/>`);
+}
+export function tunnelIcon(size = 34) {
+  return svg(size, `
+    <g fill="#f2f5ff" stroke="#aab2d4" stroke-width="3">
+      <circle cx="14" cy="32" r="9"/><circle cx="50" cy="32" r="9"/>
+      <circle cx="22" cy="18" r="10"/><circle cx="42" cy="18" r="10"/>
+      <circle cx="22" cy="46" r="10"/><circle cx="42" cy="46" r="10"/>
+    </g>
+    <circle cx="32" cy="32" r="11" fill="#5b5080"/>
+    <circle cx="32" cy="32" r="11" fill="none" stroke="#8d86c9" stroke-width="3"/>
+    <circle cx="28" cy="28" r="2.2" fill="#cfc3f5" opacity=".9"/>`);
+}
 export function fogPuff(size = 40) {
   return svg(size, `
     <g fill="#ffffff" opacity=".9" stroke="#d8c7ee" stroke-width="2.5">

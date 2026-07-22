@@ -217,7 +217,7 @@ function renderMap(){
     const ids = Array.from({length:10},(_,i)=>(reg.id-1)*10+i+1);
     ids.forEach((id,i)=>{
       const x = W/2 + Math.sin(i*1.05)* (W*0.26) - 32;
-      const node=el('button','node'+(reg.id===2?' rainbow':reg.id===3?' nightnode':reg.id===4?' stormnode':''));
+      const node=el('button','node'+(reg.id===2?' rainbow':reg.id===3?' nightnode':reg.id===4?' stormnode':reg.id===5?' towernode':''));
       const st=save.stars[id]||0;
       if(st>0){ node.classList.add('done'); node.innerHTML=id+'<span class="stars">'+starRow(st,13)+'</span>'; }
       else if(id===unlockedMax){ node.classList.add('current'); node.textContent=id; }

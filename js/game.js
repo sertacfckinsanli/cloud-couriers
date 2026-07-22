@@ -9,7 +9,8 @@ import { courierSVG, houseSVG } from './svg.js';
 import { ui } from './ui.js';
 import { sealIcon, sealChip, windArrow, chevronFlow, postOfficeIcon, gateDoors,
          stormCloud, balloonIcon, stampRosette, fogPuff, envelopeIcon,
-         sparkStar, crossPuff, uiIcon, ghostArrow, moonGateIcon, lanternIcon, zapIcon } from './icons.js';
+         sparkStar, crossPuff, uiIcon, ghostArrow, moonGateIcon, lanternIcon, zapIcon,
+         portalIcon, tunnelIcon } from './icons.js';
 import { solveLevel, adviseHint } from './solver.js';
 import { L, pick, t } from './i18n.js';
 import { playRegion, victory as musicVictory } from './music.js';
@@ -65,6 +66,8 @@ export const game = {
     $('#phone').classList.toggle('night', this.L.region===3);
     $('#screen-play').classList.toggle('storm', this.L.region===4);
     $('#phone').classList.toggle('storm', this.L.region===4);
+    $('#screen-play').classList.toggle('tower', this.L.region===5);
+    $('#phone').classList.toggle('tower', this.L.region===5);
     this.seesHidden = !!this.stats.seesHidden;
     $('#hud-level').textContent=t('lvLabel')+id;
     $('#hud-timer').textContent=this.L.timeLimit? this.L.timeLimit+t('secUnit') : '0'+t('secUnit');
@@ -123,6 +126,11 @@ export const game = {
       if(t.type==='moongate'){ d.innerHTML='<span class="moonface">'+moonGateIcon(Math.round(TS*0.66), moonOpen(this.L, this.st.mt))+'</span>'; }
       if(t.type==='switch'){ d.innerHTML='<span class="lantern">'+lanternIcon(Math.round(TS*0.62), false)+'</span>'; }
       if(t.type==='zap'){ d.innerHTML='<span class="zapface">'+zapIcon(Math.round(TS*0.62), zapOn(this.L, this.st.mt))+'</span>'; }
+      if(t.type==='portal'){
+        const tint = t.pair==='O' ? ['#7fd4ff','#2f7fd1'] : ['#ffb3cf','#d0518c'];
+        d.innerHTML='<span class="swirl">'+portalIcon(Math.round(TS*0.72), tint[0], tint[1])+'</span>';
+      }
+      if(t.type==='tunnel'){ d.innerHTML='<span class="tun">'+tunnelIcon(Math.round(TS*0.74))+'</span>'; }
       board.appendChild(d);
     }
     // letters + stamps overlays
@@ -204,7 +212,7 @@ export const game = {
     const layer=document.getElementById('ghostlayer'); if(!layer) return;
     layer.innerHTML='';
     if(this.flying || !this.st || this.st.status!=='ready') return;
-    const st=initRun(this._Pghost, this.L); st.status='flying';
+    const st=initRun(this._Pghost, this.L, this.stats); st.status='flying';
     if(this.st && this.st.lit) st.lit=true;
     const steps=[]; let result='loop'; let intoDark=false;
     for(let i=0;i<44 && st.status==='flying' && !intoDark;i++){
@@ -215,6 +223,10 @@ export const game = {
           // the preview fades into darkness at unrevealed hidden tiles
           if(t && t.hidden && !st.lit && !this.seesHidden){ intoDark=true; break; }
           steps.push({r:e.r, c:e.c, dir:e.dir});
+        }
+        if(e.t==='warp'){
+          const [wr,wc]=e.to.split(',').map(Number);
+          steps.push({r:wr, c:wc, dir:e.dir});
         }
         if(e.t==='win') result='win';
         if(e.t==='lose') result='lose';
@@ -437,6 +449,11 @@ export const game = {
         : e.zap ? t('zapPushedBack',{name:this.stats.name})
         : e.storm ? t('stormShoved',{name:this.stats.name})
         : t('bumpedBalloon')); }
+    if(e.t==='bounceTunnel'){ sfx.bump(); this.jolt('squash'); this.shakeBoard(true); this.spark(e.key, crossPuff(20)); toast(t('tunnelTooNarrow')); }
+    if(e.t==='warp'){
+      sfx.stamp(); this.spark(e.from, sparkStar(22,'#7fd4ff')); this.spark(e.to, sparkStar(22,'#7fd4ff'));
+      this.placeCourier(); this._lastXY=this.cellXY(this.st.r,this.st.c);
+    }
     if(e.t==='bounceHome'){ sfx.tap(); this.jolt('squash'); }
     if(e.t==='win'){ this.finishWin(); }
     if(e.t==='lose'){ this.finishLose(e.reason); }

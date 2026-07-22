@@ -9,10 +9,10 @@ export const COURIER_STATS={
  mimo: {name:'Mimo',  accent:'#cfc3f5', stepMs:600, cap:2},
  lulu: {name:'Lulu',  accent:'#5bd98f', stepMs:480, cap:1, shield:1},
  nini: {name:'Nini',  accent:'#b18cff', stepMs:440, cap:1, seesHidden:true},
- bibi: {name:'Bibi',  accent:'#ffb3cf', stepMs:440, cap:1},
+ bibi: {name:'Bibi',  accent:'#ffb3cf', stepMs:440, cap:1, tiny:true},
 };
 // unlocked by finishing these levels
-export const COURIER_UNLOCKS={ 10:'zippy', 18:'mimo', 24:'nini', 28:'lulu' };
+export const COURIER_UNLOCKS={ 10:'zippy', 18:'mimo', 24:'nini', 28:'lulu', 44:'bibi' };
 
 export const COURIERS=[
  {id:'poffy', desc:L('Sweet, brave and balanced. Steady wings, one letter.','Tatlı, cesur ve dengeli. Sağlam kanatlar, bir mektup.'), tag:L('Starter — always ready!','Başlangıç — her zaman hazır!')},
@@ -20,7 +20,7 @@ export const COURIERS=[
  {id:'mimo', desc:L('Calm and sleepy. Carries TWO letters, but drifts slowly.','Sakin ve uykulu. İKİ mektup taşır ama yavaş süzülür.'), tag:L('Unlocks at level 18','Level 18\'de açılır'), unlockAt:18},
  {id:'nini', desc:L('Night courier. Sees every hidden moonlit path.','Gece kuryesi. Ay ışığındaki her gizli yolu görür.'), tag:L('Unlocks at level 24','Level 24\'te açılır'), unlockAt:24},
  {id:'lulu', desc:L('Brave and fluffy. Survives ONE storm hit per flight.','Cesur ve tüylü. Uçuş başına BİR fırtına darbesine dayanır.'), tag:L('Unlocks at level 28','Level 28\'de açılır'), unlockAt:28},
- {id:'bibi', desc:L('Tiny and curious. Fits through cloud tunnels.','Minik ve meraklı. Bulut tünellerine sığar.'), tag:L('Region 5 — coming soon','Bölge 5 — yakında'), unlockAt:99},
+ {id:'bibi', desc:L('Tiny and curious. Fits through cloud tunnels.','Minik ve meraklı. Bulut tünellerine sığar.'), tag:L('Unlocks at level 44','Level 44\'te açılır'), unlockAt:44},
 ];
 
 export const STORY=[
@@ -34,6 +34,8 @@ export const STORY=[
  {lv:30, from:L('To the Morning','Sabaha'), text:L('“We kept every lantern lit through the long night. Come slowly, dear Morning. Some dreams are still being delivered.” — The Moon Isles','"Uzun gece boyunca her feneri yanık tuttuk. Yavaş gel sevgili Sabah. Bazı rüyalar hâlâ teslim ediliyor." — Ay Adaları')},
  {lv:34, from:L('To Brave Lulu','Cesur Lulu\'ya'), text:L('“Dear Lulu, thank you for flying the storm run when nobody else would. The valley keeps a warm chimney just for you.” — The Weather Station','"Sevgili Lulu, başka kimse uçmazken fırtına rotasını uçtuğun için teşekkürler. Vadi senin için sıcak bir baca tutuyor." — Hava Durumu İstasyonu')},
  {lv:40, from:L('To Old Thunder','Yaşlı Gök Gürültüsüne'), text:L('“You were never angry, were you? Just lonely up there. Come down and sing with the wind chimes sometime.” — A small courier','"Hiç kızgın değildin değil mi? Sadece orada yalnızdın. Bir gün in de rüzgâr çanlarıyla şarkı söyle." — Küçük bir kurye')},
+ {lv:44, from:L('To Little Bibi','Minik Bibi\'ye'), text:L('“Dear Bibi, being small is not a small thing. You fit where hope needs to go.” — The Post Master','"Sevgili Bibi, küçük olmak küçük bir şey değildir. Sen umudun gitmesi gereken yere sığarsın." — Postane Müdürü')},
+ {lv:50, from:L('To the Lost Letters','Kayıp Mektuplara'), text:L('“You were never lost. You were just waiting for someone brave enough to climb the tower. Welcome home.” — Everyone, together','"Siz hiç kaybolmadınız. Sadece kuleye tırmanacak kadar cesur birini bekliyordunuz. Evinize hoş geldiniz." — Herkes, hep birlikte')},
 ];
 
 export const SHOP=[
@@ -49,5 +51,5 @@ export const REGIONS=[
  {id:2,name:L('Rainbow Market','Gökkuşağı Pazarı'), sub:L('Colors & bridges · levels 11–20','Renkler & köprüler · level 11–20'), icon:'rainbow', tint:'#e8559a'},
  {id:3,name:L('Sleeping Moon Isles','Uyuyan Ay Adaları'), sub:L('Night puzzles · levels 21–30','Gece bulmacaları · level 21–30'), icon:'moon', tint:'#b18cff'},
  {id:4,name:L('Storm Valley','Fırtına Vadisi'), sub:L('Lightning timing · levels 31–40','Şimşek zamanlaması · level 31–40'), icon:'bolt', tint:'#eda313'},
- {id:5,name:L('Lost Post Tower','Kayıp Posta Kulesi'), sub:L('Portals & finale · coming soon','Portallar & final · yakında'), icon:'tower', tint:'#8a90b8', locked:true},
+ {id:5,name:L('Lost Post Tower','Kayıp Posta Kulesi'), sub:L('Portals & finale · levels 41–50','Portallar & final · level 41–50'), icon:'tower', tint:'#8a90b8'},
 ];

@@ -139,6 +139,7 @@ export const STR = {
   gateClosedTap:   L('The gate was closed! Tap it!','Kapı kapalıydı! Dokun ona!'),
   gateOnlyAccepts: L('This gate only accepts {color} mail!','Bu kapı sadece {color} mektup kabul eder!'),
   lanternLights:   L('The lantern lights the hidden paths!','Fener gizli yolları aydınlatıyor!'),
+  tunnelTooNarrow: L('The cloud tunnel is too narrow! Only tiny Bibi fits.','Bulut tüneli çok dar! Sadece minik Bibi sığar.'),
   luluShruggedZap: L('Lulu shrugged off the lightning!','Lulu şimşeği umursamadı!'),
   luluPuffedStorm: L('Lulu puffed right through the storm!','Lulu fırtınanın içinden tüylenerek geçti!'),
   zapPushedBack:   L('Zap! The lightning pushed {name} back!','Zap! Şimşek {name}\'yi geri itti!'),

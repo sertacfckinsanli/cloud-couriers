@@ -218,4 +218,63 @@ export const LEVELS = [
   letters:{'5,3':'p','2,4':'b','2,2':'y'}, stamps:['2,1'], zapPeriod:3,
   gentleStorm:true, par:36, boss:L('Old Thunder','Yaşlı Gök Gürültüsü'),
   hint:{cell:'4,3',text:L('Pink right, blue left, then rise through the thunder\'s rest.','Pembe sağa, mavi sola, sonra gök gürültüsü dinlenirken yüksel.')} },
+
+/* ============ Region 5: Lost Post Tower ============ */
+{ id:41, region:5, name:L('The Tower Door','Kule Kapısı'), obj:L('Step through your first portal','İlk portalından geç'),
+  rows:['.......','...B...','...-...','...O...','.......','...O...','...-...','...S...'],
+  letters:{'2,3':'b'}, par:10, hint:{cell:'5,3',text:L('The swirl carries you to its twin — keep flying!','Girdap seni ikizine taşır — uçmaya devam!')},
+  tutorial:[{cell:'5,3',text:L('Welcome to the Lost Post Tower! Portals teleport you to their twin.','Kayıp Posta Kulesi\'ne hoş geldin! Portallar seni ikizlerine ışınlar.')}] },
+
+{ id:42, region:5, name:L('Twin Passages','İkiz Geçitler'), obj:L('Portals keep your direction — aim well!','Portallar yönünü korur — iyi nişan al!'),
+  rows:['.......','.B...O.','.-...-.','.-...-.','.O...-.','.....<.','.....-.','.....S.'],
+  letters:{'3,5':'b'}, par:12,
+  hint:{cell:'5,5',text:L('Turn this breeze up. The portal will finish the journey.','Bu rüzgârı yukarı çevir. Yolculuğu portal tamamlar.')},
+  tutorial:[{cell:'1,5',text:L('You leave a portal flying the SAME direction you entered.','Portaldan girdiğin YÖNDE çıkarsın.')}] },
+
+{ id:43, region:5, name:L('Lightning Leap','Şimşekli Sıçrama'), obj:L('Warp past the storm floor','Fırtına katını ışınlanarak geç'),
+  rows:['.......','...B...','...-...','...Z...','...O...','.......','...O...','...S...'],
+  letters:{'2,3':'b'}, zapPeriod:4, par:10,
+  hint:{cell:'6,3',text:L('The portal drops you right under the lightning — it rests just long enough.','Portal seni şimşeğin hemen altına bırakır — tam yetecek kadar dinlenir.')} },
+
+{ id:44, region:5, name:L('Bibi\'s Debut','Bibi\'nin İlk Uçuşu'), obj:L('Tiny Bibi fits through cloud tunnels!','Minik Bibi bulut tünellerine sığar!'),
+  rows:['.......','...Y...','...-...','...n...','...-...','...<...','...-...','...S...'],
+  letters:{'4,3':'y'}, courier:'bibi', tiny:1, par:12,
+  hint:{cell:'5,3',text:L('Turn the breeze up — the tunnel is no problem for Bibi.','Rüzgârı yukarı çevir — tünel Bibi için sorun değil.')},
+  tutorial:[{cell:'3,3',text:L('Cloud tunnels are too narrow for everyone... except tiny Bibi!','Bulut tünelleri herkes için çok dar... minik Bibi hariç!')}] },
+
+{ id:45, region:5, name:L('Double Spiral','Çifte Sarmal'), obj:L('Two portal pairs, two deliveries','İki portal çifti, iki teslimat'),
+  rows:['.......','.r-v-d.','.B.Q.-.','.-...-.','.O...G.','.....Q.','.O...-.','.-...u.','.S.....'],
+  letters:{'3,1':'b','3,5':'g'}, stamps:['6,5'], par:20,
+  hint:{cell:'1,3',text:L('The pink pair guards the stamp. Dive in, ride back up, then turn right in flight!','Pembe çift pulu koruyor. Dal, geri süzül, sonra uçarken sağa çevir!')} },
+
+{ id:46, region:5, name:L('The Secret Tunnel','Gizli Tünel'), obj:L('Light the dark, squeeze through the clouds','Karanlığı aydınlat, bulutların arasından süzül'),
+  rows:['.......','...G...','...n...','...-...','.rh^...','.s.-...','.^h<...','...-...','...S...'],
+  letters:{'3,3':'g'}, stamps:['4,2'], courier:'bibi', tiny:1, par:16,
+  hint:{cell:'6,3',text:L('The hidden left road lights the lantern and hides a stamp.','Gizli sol yol feneri yakar ve bir pul saklar.')} },
+
+{ id:47, region:5, name:L('Sealed Floors','Mühürlü Katlar'), obj:L('Three seals, one crackling spine','Üç mühür, tek çatırdayan omurga'),
+  rows:['...Y...','...%...','.r-v-l.','.B.Z.P.','.u%^%u.','...-...','...-...','...S...'],
+  letters:{'5,3':'p','2,4':'b','2,2':'y'}, zapPeriod:4, gentleStorm:true,
+  gates:{'4,2':{color:'b'},'4,4':{color:'p'},'1,3':{color:'y'}}, par:30,
+  hint:{cell:'4,3',text:L('Pink right, blue left, yellow up — and never linger on the spark.','Pembe sağa, mavi sola, sarı yukarı — ve kıvılcımın üstünde oyalanma.')} },
+
+{ id:48, region:5, name:L('The Last Mail Rush','Son Posta Koşusu'), obj:L('Urgent! Warp, grab, deliver — beat the clock','Acil! Işınlan, kap, teslim et — saati yen'),
+  rows:['.......','.>---v.','.-...-.','.G...O.','.-...-.','.....-.','...O...','...-...','...S...'],
+  letters:{'1,3':'g'}, stamps:['2,1'], timeLimit:15, par:8,
+  hint:{cell:'1,5',text:L('The portal throws you to the top lane. Set both corners before you fly!','Portal seni üst şeride fırlatır. Uçmadan önce iki köşeyi de ayarla!')} },
+
+{ id:49, region:5, name:L('The Moonlight Watch','Ay Işığı Nöbeti'), obj:L('Storm below, moon above, portal between','Altta fırtına, üstte ay, arada portal'),
+  rows:['.......','...B...','...M...','...-...','.--^--.','...O...','.......','...O...','...S...'],
+  letters:{'3,3':'b'}, moonPeriod:3, moverOffset:4, gentleStorm:true,
+  movers:[{cells:[[4,1],[4,2],[4,3],[4,4],[4,5]],type:'storm',every:2}],
+  par:12,
+  hint:{cell:'4,3',text:L('Straight up, no detours — the moon opens exactly when you arrive.','Dosdoğru yukarı, sapma yok — ay tam vardığında açılır.')} },
+
+{ id:50, region:5, name:L('Lost Post Tower Finale','Kayıp Posta Kulesi Finali'), obj:L('Boss: the Paper Ghost! Free the lost letters','Boss: Kâğıt Hayalet! Kayıp mektupları kurtar'),
+  rows:['...Y...','...M...','.r-v-l.','.B.-.P.','.u%^%u.','...-...','.O-<-O.','...-...','...S...'],
+  letters:{'5,3':'p','2,4':'b','2,2':'y'}, stamps:['6,4'], moonPeriod:3, moverOffset:3,
+  gates:{'4,2':{color:'b'},'4,4':{color:'p'}},
+  movers:[{cells:[[3,3],[3,4]],type:'storm',every:2,face:'😴',big:true}],
+  gentleStorm:true, par:38, boss:L('The Paper Ghost','Kâğıt Hayalet'),
+  hint:{cell:'6,3',text:L('The portals loop around the stamp. Pink right, blue left, then rise at moonrise.','Portallar pulun etrafında döner. Pembe sağa, mavi sola, sonra ay doğarken yüksel.')} },
 ];

@@ -34,8 +34,13 @@ export function parseLevel(L){
     if(ch==='h'){ tiles[k]={type:'path', hidden:true}; continue; }
     if(ch==='s'){ tiles[k]={type:'switch'}; continue; }
     if(ch==='Z'){ tiles[k]={type:'zap'}; continue; }
+    if(ch==='O'||ch==='Q'){ tiles[k]={type:'portal', pair:ch}; continue; }
+    if(ch==='n'){ tiles[k]={type:'tunnel'}; continue; }
     tiles[k]={type:'sky'};
   }
+  // portal twins by pair letter ('O' and 'Q' are independent pairs)
+  const portals = {};
+  for(const k in tiles) if(tiles[k].type==='portal'){ (portals[tiles[k].pair] = portals[tiles[k].pair]||[]).push(k); }
   const letters = Object.assign({}, L.letters||{});
   const stamps = new Set(L.stamps||[]);
   // mover expanded ping-pong sequences
@@ -45,7 +50,7 @@ export function parseLevel(L){
   });
   const hasMoon = Object.values(tiles).some(t=>t.type==='moongate');
   const hasZap = Object.values(tiles).some(t=>t.type==='zap');
-  return { rows:R, cols:C, tiles, start, arrowsInit:arrows, letters, stamps, movers,
+  return { rows:R, cols:C, tiles, start, arrowsInit:arrows, letters, stamps, movers, portals,
            moonCycle: hasMoon ? 2*(L.moonPeriod||3) : 1,
            zapCycle: hasZap ? 2*(L.zapPeriod||3) : 1,
            totalLetters:Object.keys(letters).length };
@@ -67,6 +72,7 @@ export function initRun(P, L, stats){
   return {
     r:P.start.r, c:P.start.c, dir:L.startDir||'u',
     carrying:[], cap:stats.cap||L.carryCap||1, shield:stats.shield||L.shield||0,
+    tiny:(stats.tiny||L.tiny) ? 1 : 0,
     // fast couriers (rate<1) out-run hazards; slow couriers are clamped to 1
     // so hazards never move *faster* than Poffy's baseline — no unwinnable phase
     hazardRate:(stats.stepMs ? Math.min(1, stats.stepMs/BASE_STEP) : 1),
@@ -129,6 +135,10 @@ export function stepSim(P, L, st, io){
   if(nt.type==='moongate' && !moonOpen(L, st.mt)){
     st.dir=OPP[d]; st.mistakes++; ev.push({t:'bounceGate',key:nk,color:null,moon:true}); return ev;
   }
+  // cloud tunnels are too narrow for everyone except tiny couriers (Bibi)
+  if(nt.type==='tunnel' && !st.tiny){
+    st.dir=OPP[d]; st.mistakes++; ev.push({t:'bounceTunnel',key:nk}); return ev;
+  }
   // stepping INTO an active lightning zone
   if(nt.type==='zap' && zapOn(L, st.mt)){
     if(st.shield>0){ st.shield--; st.dir=OPP[d]; st.mistakes++; ev.push({t:'bump',key:nk,zap:true,shield:true}); return ev; }
@@ -144,6 +154,12 @@ export function stepSim(P, L, st, io){
   // 4) enter
   st.r=nr; st.c=nc;
   ev.push({t:'move', r:nr, c:nc, dir:d});
+  // portals teleport to their twin, keeping direction; the next step continues from there
+  if(nt.type==='portal'){
+    const twins = (P.portals && P.portals[nt.pair]) || [];
+    const other = twins.find(x=>x!==nk);
+    if(other){ const [tr,tc]=other.split(',').map(Number); st.r=tr; st.c=tc; ev.push({t:'warp', from:nk, to:other, dir:d}); }
+  }
   if(st.lettersLeft[nk]!==undefined && st.carrying.length < st.cap){
     const col = st.lettersLeft[nk]; delete st.lettersLeft[nk];
     st.carrying.push(col); ev.push({t:'pick', key:nk, color:col});
