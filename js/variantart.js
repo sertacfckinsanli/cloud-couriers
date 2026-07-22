@@ -98,6 +98,27 @@ export const VARIANTS = {
       },
     },
   },
+  observatory: {
+    dir: 'img/observatory/', prefix: 'observatory',
+    seq: ['lanterns', 'starglobe', 'telescope', 'couch', 'globe', 'charts'],   // fixed first, then 4 choice
+    code: { lanterns: 'L', starglobe: 'S', telescope: 'T', couch: 'U', globe: 'G', charts: 'H' },
+    fixed: { lanterns: '1', starglobe: '1' },
+    labels: { '1': L('Classic','Klasik'), '2': L('Art Deco','Art Deco'), '3': L('Celestial','Göksel') },
+    pos: { lanterns: '50% 18%', starglobe: '50% 80%', telescope: '54% 50%', couch: '38% 46%', globe: '62% 48%', charts: '38% 70%' },
+    fx: { lanterns: {x:50,y:18,w:60,h:20}, starglobe: {x:50,y:80,w:8,h:16}, telescope: {x:54,y:46,w:16,h:34}, couch: {x:38,y:44,w:16,h:24}, globe: {x:62,y:42,w:10,h:30}, charts: {x:38,y:70,w:16,h:26} },
+    layered: {
+      FW: 2424, FH: 1039, base: 'lay_base.jpg', dirty: 'lay_dirty.jpg',
+      z: ['lanterns', 'couch', 'globe', 'telescope', 'charts', 'starglobe'],
+      sprites: {
+        lanterns:  { '1': {f:'lay_L1.png',x:513,y:56,w:1421} },
+        starglobe: { '1': {f:'lay_S1.png',x:1140,y:760,w:139} },
+        telescope: { '1': {f:'lay_T1.png',x:1152,y:297,w:292}, '2': {f:'lay_T2.png',x:1149,y:297,w:287}, '3': {f:'lay_T3.png',x:1149,y:297,w:294} },
+        couch:     { '1': {f:'lay_U1.png',x:770,y:375,w:308}, '2': {f:'lay_U2.png',x:714,y:303,w:420}, '3': {f:'lay_U3.png',x:752,y:314,w:332} },
+        globe:     { '1': {f:'lay_G1.png',x:1420,y:361,w:181}, '2': {f:'lay_G2.png',x:1406,y:252,w:208}, '3': {f:'lay_G3.png',x:1355,y:312,w:310} },
+        charts:    { '1': {f:'lay_H1.png',x:730,y:622,w:364}, '2': {f:'lay_H2.png',x:735,y:614,w:359}, '3': {f:'lay_H3.png',x:766,y:557,w:328} },
+      },
+    },
+  },
   office: {
     dir: 'img/office/', prefix: 'office',
     // fixed items FIRST (rug, orrery) so the choice tree doesn't multiply; then choice items.
