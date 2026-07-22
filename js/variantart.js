@@ -115,7 +115,7 @@ export const VARIANTS = {
         telescope: { '1': {f:'lay_T1.png',x:1152,y:297,w:292}, '2': {f:'lay_T2.png',x:1149,y:297,w:287}, '3': {f:'lay_T3.png',x:1149,y:297,w:294} },
         couch:     { '1': {f:'lay_U1.png',x:751,y:375,w:346}, '2': {f:'lay_U2.png',x:727,y:360,w:395}, '3': {f:'lay_U3.png',x:727,y:314,w:394} },
         globe:     { '1': {f:'lay_G1.png',x:1420,y:361,w:181}, '2': {f:'lay_G2.png',x:1406,y:252,w:208}, '3': {f:'lay_G3.png',x:1355,y:312,w:310} },
-        charts:    { '1': {f:'lay_H1.png',x:730,y:622,w:381}, '2': {f:'lay_H2.png',x:735,y:614,w:378}, '3': {f:'lay_H3.png',x:766,y:557,w:403} },
+        charts:    { '1': {f:'lay_H1.png',x:730,y:622,w:381}, '2': {f:'lay_H2.png',x:735,y:614,w:378}, '3': {f:'lay_H3.png',x:573,y:557,w:551} },
       },
     },
   },
