@@ -77,6 +77,27 @@ export const VARIANTS = {
       },
     },
   },
+  hospital: {
+    dir: 'img/hospital/', prefix: 'hospital',
+    seq: ['cart', 'garland', 'mend', 'cots', 'cabinet', 'rack'],   // fixed first, then 4 choice
+    code: { cart: 'C', garland: 'G', mend: 'M', cots: 'B', cabinet: 'K', rack: 'R' },
+    fixed: { cart: '1', garland: '1' },
+    labels: { '1': L('Classic','Klasik'), '2': L('Steampunk','Steampunk'), '3': L('Celestial','Göksel') },
+    pos: { cart: '72% 72%', garland: '50% 20%', mend: '48% 58%', cots: '30% 40%', cabinet: '55% 32%', rack: '28% 66%' },
+    fx: { cart: {x:72,y:72,w:12,h:20}, garland: {x:50,y:20,w:70,h:24}, mend: {x:48,y:58,w:24,h:34}, cots: {x:30,y:40,w:24,h:36}, cabinet: {x:55,y:32,w:18,h:44}, rack: {x:28,y:66,w:18,h:32} },
+    layered: {
+      FW: 2424, FH: 1039, base: 'lay_base.jpg', dirty: 'lay_dirty.jpg',
+      z: ['garland', 'cots', 'cabinet', 'mend', 'rack', 'cart'],
+      sprites: {
+        cart:    { '1': {f:'lay_C1.png',x:1680,y:532,w:202} },
+        garland: { '1': {f:'lay_G1.png',x:530,y:47,w:1445} },
+        mend:    { '1': {f:'lay_M1.png',x:945,y:412,w:463}, '2': {f:'lay_M2.png',x:885,y:412,w:635}, '3': {f:'lay_M3.png',x:919,y:412,w:506} },
+        cots:    { '1': {f:'lay_B1.png',x:455,y:267,w:539}, '2': {f:'lay_B2.png',x:455,y:267,w:539}, '3': {f:'lay_B3.png',x:454,y:267,w:540} },
+        cabinet: { '1': {f:'lay_K1.png',x:1335,y:239,w:334}, '2': {f:'lay_K2.png',x:992,y:172,w:315}, '3': {f:'lay_K3.png',x:1338,y:293,w:302} },
+        rack:    { '1': {f:'lay_R1.png',x:561,y:492,w:348}, '2': {f:'lay_R2.png',x:520,y:492,w:389}, '3': {f:'lay_R3.png',x:518,y:492,w:391} },
+      },
+    },
+  },
   office: {
     dir: 'img/office/', prefix: 'office',
     // fixed items FIRST (rug, orrery) so the choice tree doesn't multiply; then choice items.
