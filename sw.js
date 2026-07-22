@@ -1,6 +1,6 @@
 // Cloud Couriers service worker — network-first with cache fallback.
 // Fresh files whenever online (no stale-module version skew), full offline play otherwise.
-const VERSION = 'cloud-couriers-v23';
+const VERSION = 'cloud-couriers-v24';
 const CORE = [
   '.', 'index.html',
   'css/font.css', 'css/styles.css',
