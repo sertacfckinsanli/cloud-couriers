@@ -94,7 +94,7 @@ export const VARIANTS = {
         mend:    { '1': {f:'lay_M1.png',x:972,y:491,w:370}, '2': {f:'lay_M2.png',x:859,y:347,w:564}, '3': {f:'lay_M3.png',x:1020,y:444,w:327} },
         cots:    { '1': {f:'lay_B1.png',x:454,y:246,w:907}, '2': {f:'lay_B2.png',x:454,y:245,w:900}, '3': {f:'lay_B3.png',x:452,y:244,w:874} },
         cabinet: { '1': {f:'lay_K1.png',x:1455,y:259,w:194}, '2': {f:'lay_K2.png',x:1302,y:234,w:402}, '3': {f:'lay_K3.png',x:1353,y:180,w:304} },
-        rack:    { '1': {f:'lay_R1.png',x:757,y:625,w:217}, '2': {f:'lay_R2.png',x:702,y:524,w:272}, '3': {f:'lay_R3.png',x:761,y:572,w:213} },
+        rack:    { '1': {f:'lay_R1.png',x:816,y:618,w:158}, '2': {f:'lay_R2.png',x:787,y:517,w:187}, '3': {f:'lay_R3.png',x:803,y:553,w:171} },
       },
     },
   },
